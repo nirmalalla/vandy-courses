@@ -12,16 +12,16 @@ export const getAllGrades = async(req: Request, res: Response): Promise<void> =>
 }
 
 export const getGradesByCourse = async(req: Request, res: Response): Promise<void> => {
-    const { courseId } = req.params; 
+    const { course } = req.params; 
     
     try { 
-        if (!courseId || isNaN(Number(courseId))){
+        if (!course){
             res.status(400).json({error: "Invalid courseId parameter"});
             return;
         }
 
         const grades = await Grade.findAll({
-            where: { courseId: Number(courseId)}
+            where: { course: course}
         });
 
         if (grades.length === 0){
@@ -36,18 +36,38 @@ export const getGradesByCourse = async(req: Request, res: Response): Promise<voi
 
 }
 
+export const getGradesByUserId = async(req: Request, res: Response): Promise<void> => {
+    const { userId } = req.params;
+
+    try { 
+        if (!userId){
+            res.status(400).json({error: "invalid userId parameter"});
+            return;
+        }
+
+        const grades = await Grade.findAll({
+            where: {userId: userId}
+        });
+        res.status(200).json(grades);
+    } catch (error){
+        res.status(500).json({error: error.message});
+    }
+}
+
 export const addGrade = async (req: Request, res: Response): Promise<void> => {
-    const { userId, courseId, gradeReceived } = req.body;
+    const { userId, course, gradeReceived } = req.body;
 
     try {
-        if (!userId || !courseId || !gradeReceived){
+        await Grade.sync({alter: true});
+
+        if (!userId || !course || !gradeReceived){
             res.status(400).json({error: "All fields are required"});
             return;
         }
 
         const newGrade = await Grade.create({
             userId,
-            courseId,
+            course,
             gradeReceived
         });
 
@@ -56,3 +76,4 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
         res.status(500).json({error: error.message});
     }
 }
+

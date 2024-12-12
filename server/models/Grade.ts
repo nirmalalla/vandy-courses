@@ -5,8 +5,9 @@ import sequelize from "../config/database"
 interface GradeAttributes {
     id?: number;
     userId: number;
-    courseId: number;
+    course: string;
     gradeReceived: string;
+    prof: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -14,8 +15,9 @@ interface GradeAttributes {
 export class Grade extends Model<GradeAttributes> implements GradeAttributes {
     public id!: number;
     public userId!: number;
-    public courseId!: number;
+    public course!: string;
     public gradeReceived!: string;
+    public prof!: string; 
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -32,11 +34,15 @@ Grade.init(
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
         },
-        courseId: {
-            type: DataTypes.INTEGER.UNSIGNED,
+        course: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
         gradeReceived: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        prof: {
             type: DataTypes.STRING,
             allowNull: false,
         }
