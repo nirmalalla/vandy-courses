@@ -55,7 +55,8 @@ export const getGradesByUserId = async(req: Request, res: Response): Promise<voi
 
 export const addGrade = async (req: Request, res: Response): Promise<void> => {
     const { course, gradeReceived, prof } = req.body;
-    const { userId } = req.user;
+    const userId = req.user;
+    console.log(userId, course, gradeReceived, prof);
 
     try {
         await Grade.sync({alter: true});
@@ -80,7 +81,7 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
 
 export const editGrade = async (req: Request, res: Response): Promise<void> => {
     const { id, gradeReceived, prof } = req.body;
-    const { userId } = req.user;
+    const userId = req.user;
 
     try {
         const grade = Grade.findAll({where: { id, userId }});
@@ -99,7 +100,7 @@ export const editGrade = async (req: Request, res: Response): Promise<void> => {
 
 export const deleteGrade = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.body;
-    const { userId } = req.user;
+    const userId = req.user;
 
     try {
         const grade = Grade.findAll({where: { id, userId }});
