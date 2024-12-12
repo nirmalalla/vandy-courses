@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import Grade from "../models/Grade";
-import { copyFileSync } from "fs";
 
 export const getAllGrades = async(req: Request, res: Response): Promise<void> => {
     try {
@@ -37,7 +36,7 @@ export const getGradesByCourse = async(req: Request, res: Response): Promise<voi
 }
 
 export const getGradesByUserId = async(req: Request, res: Response): Promise<void> => {
-    const { userId } = req.params;
+    const { userId } = req.user;
 
     try { 
         if (!userId){
@@ -55,12 +54,13 @@ export const getGradesByUserId = async(req: Request, res: Response): Promise<voi
 }
 
 export const addGrade = async (req: Request, res: Response): Promise<void> => {
-    const { userId, course, gradeReceived } = req.body;
+    const { course, gradeReceived, prof } = req.body;
+    const { userId } = req.user;
 
     try {
         await Grade.sync({alter: true});
 
-        if (!userId || !course || !gradeReceived){
+        if (!userId || !course || !gradeReceived || !prof){
             res.status(400).json({error: "All fields are required"});
             return;
         }
@@ -68,7 +68,8 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
         const newGrade = await Grade.create({
             userId,
             course,
-            gradeReceived
+            gradeReceived,
+            prof
         });
 
         res.status(201).json(newGrade);
@@ -77,3 +78,40 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+export const editGrade = async (req: Request, res: Response): Promise<void> => {
+    const { id, gradeReceived, prof } = req.body;
+    const { userId } = req.user;
+
+    try {
+        const grade = Grade.findAll({where: { id, userId }});
+
+        if (!grade) {
+            res.status(404).json({ error: "Grade not found or not authorized to edit this grade."});
+        }
+
+        await Grade.update({ gradeReceived, prof }, { where: { id }});
+        
+        res.status(200).json({message: "grade updated successfully"});
+    } catch (error){
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export const deleteGrade = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.body;
+    const { userId } = req.user;
+
+    try {
+        const grade = Grade.findAll({where: { id, userId }});
+
+        if (!grade) {
+            res.status(404).json({error: "Grade not found or not authorized to delete this grade"});
+        }
+
+        await Grade.destroy({ where: { id }});
+        
+        res.status(204).send();
+    } catch (error){
+        res.status(500).json({ error: error.message });
+    }
+}
