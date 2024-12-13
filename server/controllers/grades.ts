@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Grade from "../models/Grade";
+import { Sequelize } from "sequelize";
+import sequelize from "sequelize";
 
 export const getAllGrades = async(req: Request, res: Response): Promise<void> => {
     try {
@@ -33,6 +35,21 @@ export const getGradesByCourse = async(req: Request, res: Response): Promise<voi
         res.status(500).json({error: error.message});
     }
 
+}
+
+export const getCourses = async(req: Request, res: Response): Promise<void> => {
+    try {
+        const courses = await Grade.findAll({
+            attributes: [
+                [Sequelize.fn('DISTINCT', Sequelize.col("course")), "course"]
+            ],
+            raw: true,
+        });
+
+        res.status(200).json(courses);
+    } catch (error) {
+        res.json(500).json({error: error.message});
+    }
 }
 
 export const getGradesByUserId = async(req: Request, res: Response): Promise<void> => {
