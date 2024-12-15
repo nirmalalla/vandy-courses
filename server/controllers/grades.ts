@@ -13,8 +13,8 @@ export const getAllGrades = async(req: Request, res: Response): Promise<void> =>
 }
 
 export const getGradesByCourse = async(req: Request, res: Response): Promise<void> => {
-    const { course } = req.params; 
-    
+    const course = req.params.courseId; 
+    console.log(course);
     try { 
         if (!course){
             res.status(400).json({error: "Invalid courseId parameter"});

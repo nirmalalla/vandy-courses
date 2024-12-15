@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { AutoComplete } from "antd";
+import { AutoComplete, Button } from "antd";
+import { useRouter } from "next/navigation";
 
 interface CourseName{
     course?: string
@@ -15,6 +16,7 @@ export default function SearchBar(){
     const [allOptions, setAllOptions] = useState<Option[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
     const [chosen, setChosen] = useState("");
+    const router = useRouter();
 
     const getCourses = async () => {
         const res = await fetch("http://localhost:5000/api/grades/course", {
@@ -50,6 +52,12 @@ export default function SearchBar(){
         setFilteredOptions(filtered);
     }
 
+    const onClick = () => {
+        if (chosen.trim() !== ""){
+            router.push(`/search?query=${encodeURIComponent(chosen)}`);
+        }
+    }
+
     useEffect(() => {
         getCourses();
     }, [])
@@ -59,12 +67,13 @@ export default function SearchBar(){
             <AutoComplete
                 value={chosen} 
                 options={filteredOptions}
-                style={{width: 200}}
+                style={{width: 300}}
                 onChange={onChange}
                 onSearch={onSearch}
-                placeholder="search course"
+                placeholder="course name"
                 size="large"
             />
+            <Button type="primary" onClick={onClick} style={{margin: 4}}>search</Button>
         </>
     )
 }
