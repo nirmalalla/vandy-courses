@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { createNewUser, loginUser, refreshToken } from "../controllers/users";
+import { googleAuth, handleCallback } from "../controllers/users";
 
 const usersRouter = Router();
 
-usersRouter.post("/", createNewUser);
-usersRouter.post("/login", loginUser);
-usersRouter.post("/refreshToken", refreshToken);
+usersRouter.get("/auth/google", googleAuth);
+usersRouter.get("/auth/google/callback", handleCallback);
 
 export default usersRouter;

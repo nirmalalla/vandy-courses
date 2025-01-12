@@ -1,12 +1,58 @@
 'use client'
 
+import { useState} from "react";
 import { Layout, Button } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
 import type { FormProps } from 'antd';
 import { Checkbox, Form, Input, Select } from 'antd';
+import { useRouter } from "next/navigation";
 
 export default function PostForm(){
-   
+    const [course, setCourse] = useState("");
+    const [prof, setProf] = useState("");
+    const [grade, setGrade] = useState("A+");
+    const router = useRouter();
+
+    const onClick = async () => {
+        try {
+            const res = await fetch('http://localhost:5000/api/grades', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ course, gradeReceived: grade, prof })
+            });
+            
+            const statusCode = res.status;
+
+            if (!res.ok){
+                if (statusCode === 401 || statusCode === 403){
+                    router.push("/login");
+                }else{
+                    console.log("invalid info");
+                }
+            }else{
+                console.log("grade created");
+                router.push('/');
+            }
+        } catch (error) {
+            console.error("error: ", error);
+        }
+    }
+
+    const handleCourseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setCourse(event.target.value);
+    }
+
+    const handleProfChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setProf(event.target.value);
+    }
+
+    const handleGradeChange = (value: string) => {
+        setGrade(value);
+    }
+
+
     return (
         <>
             <Layout>
@@ -27,14 +73,14 @@ export default function PostForm(){
                             label="Course"
                             rules={[{ required: true, message: 'Please Input your Course' }]}
                         >
-                            <Input placeholder="e.g. CS2201" />
+                            <Input value={course} onChange={handleCourseChange} placeholder="e.g. CS2201" />
                         </Form.Item>
 
                         <Form.Item
                             label="Professor"
                             rules={[{required: true, message: "Please Input your Professor"}]}
                         >
-                            <Input placeholder="e.g. John Doe"/>
+                            <Input value={prof} onChange={handleProfChange} placeholder="e.g. John Doe"/>
                         </Form.Item>
 
                         <Form.Item
@@ -42,7 +88,7 @@ export default function PostForm(){
                             rules={[{required: true, message: "Please Input your Grade"}]}
                         >
                             <Select 
-                                defaultValue="A+"
+                                onChange={handleGradeChange}
                                 style={{ width: 120 }}
                                 options={[
                                     {value: 'A+', label: 'A+'},
@@ -63,7 +109,7 @@ export default function PostForm(){
                         </Form.Item>
 
                         <Form.Item style={{display: "flex", justifyContent: "center"}}>
-                            <Button type="primary">Submit</Button>
+                            <Button type="primary" onClick={onClick}>Submit</Button>
                         </Form.Item>
 
                     </Form>

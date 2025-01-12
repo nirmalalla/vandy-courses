@@ -1,91 +1,132 @@
 import { Request, Response } from "express";
-import User from "../models/User";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import * as path from "path";
+import querystring from "querystring";
+import fetch from 'node-fetch';
+import jwkToPem from 'jwk-to-pem';
 
 dotenv.config({path: path.resolve(process.cwd(), ".env")});
 
-export const createNewUser = async (req: Request, res: Response): Promise<void> => { const { email, password } = req.body;
+interface GoogleAuthResponse {
+    id_token?: string;
+    access_token?: string;
+}
+
+interface GoogleCert {
+    kid: string;
+    alg: string;
+    use: string;
+    e: string;
+    kty: string;
+    n: string;
+}
+
+interface GoogleCertsResponse {
+    keys?: GoogleCert[];
+}
+
+export const googleAuth = async (req: Request, res: Response) => {
+    const params = querystring.stringify({
+        client_id: process.env.CLIENT_ID,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        response_type: 'code',
+        scope: 'email',
+        access_type: 'offline',
+        prompt: 'consent',
+    })
+
+    const googleAuthUrl = `${process.env.GOOGLE_AUTH_URL}?${params}`;
+    res.redirect(googleAuthUrl);
+};
+
+
+export const handleCallback = async (req: Request, res: Response) => {
+    const { code } = req.query;
+
+    if (!code) {
+        return res.status(400).json({ error: 'Missing authorization code' });
+    }
+
     try {
-        if (!email || !password){
-            res.status(400).json({error: "invalid params"});
-            return;
-        }
-        
-        await User.sync({alter: true});
-        
-        const existingUser = await User.findOne({where: { email }});
-        if (existingUser) {
-            res.status(400).json({error: "Email already in use"});
-            return;
-        }
-
-        const saltRounds = 10;
-        const password_hash = await bcrypt.hash(password, saltRounds);
-
-
-        User.create({
-            email,
-            password_hash,
+        // Exchange code for tokens
+        const tokenEndpoint = process.env.GOOGLE_TOKEN_URL || 'https://oauth2.googleapis.com/token';
+        const response = await fetch(tokenEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                code: code as string,
+                client_id: process.env.CLIENT_ID!,
+                client_secret: process.env.CLIENT_SECRET!,
+                redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
+                grant_type: 'authorization_code',
+            }).toString(),
         });
 
-        res.status(201).json({message: "User created successfully"});
+        const data: GoogleAuthResponse = await response.json();
 
-    } catch (error){
-        res.status(500).json({error: error.message});
-    }
-
-
-}
-
-export const loginUser = async (req: Request, res: Response): Promise<void> => {
-    const { email, password } = req.body;
-
-    try {
-        const user = await User.findOne({where: { email }});
-
-        if (!user){
-            res.status(401).json({error: "invalid email"});
-            return;
+        if (!response.ok) {
+            return res.status(500).json({
+                error: 'Failed to exchange code for tokens',
+                details: data,
+            });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password_hash);
+        const { id_token, access_token } = data;
 
-        if (!isMatch){
-            res.status(401).json({error: "invalid email or password"});
-        }
-
-        const token = jwt.sign({id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h"});
+        // Decode and verify the ID token
+        const userPayload = await decodeAndVerifyToken(id_token);
+        // Save tokens securely, e.g., using an HTTP-only cookie
+        res.cookie('authToken', access_token, { httpOnly: true, secure: true });
         
-        res.cookie("jwt", token, {
+        res.cookie('userInfo', JSON.stringify({ email: userPayload.email, name: userPayload.name }), {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 3600000,
-        })
+            secure: true,
+        });
 
-        res.status(200).json({ token });
-    } catch (error) {
-        res.status(500).json({error: error.message});
+
+        // Redirect or return success message
+        res.redirect('http://localhost:3000');
+    } catch (error: any) {
+        console.error('Error during authentication:', error.message);
+        res.status(500).json({ error: 'Authentication failed', details: error.message });
     }
-}
+};
 
-export const refreshToken = async (req: Request, res: Response): Promise<void> => {
-    const token = req.cookies.jwt;
-
-    if (!token){
-        return res.status(401).json({ error: "no token provided" });
-    }
+async function decodeAndVerifyToken(idToken: string) {
+    const googleCertsUrl = 'https://www.googleapis.com/oauth2/v3/certs';
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) as { id: number };
+        // Fetch Google's public keys
+        const response = await fetch(googleCertsUrl);
+        const certs: GoogleCertsResponse = await response.json();
 
-        const newToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // Decode the ID token to get the 'kid' (Key ID) from the header
+        const decodedHeader = jwt.decode(idToken, { complete: true })?.header;
+        const kid = decodedHeader?.kid;
 
-        res.status(200).json({ token: newToken });
-    } catch (error){
-        res.status(401).json({ error: "invalid or expired token" });
+        if (!kid) {
+            throw new Error('ID Token does not have a valid "kid" in its header');
+        }
+
+        // Find the public key that matches the 'kid'
+        const publicKey = certs.keys.find((key: any) => key.kid === kid);
+
+        if (!publicKey) {
+            throw new Error('Public key not found for the "kid"');
+        }
+
+        // Convert the JWK to PEM format
+        const pem = jwkToPem(publicKey);
+        
+        // Verify the ID token with the public key (in PEM format)
+        const decodedToken = jwt.verify(idToken, pem, { algorithms: ['RS256'] });
+
+        return decodedToken;
+    } catch (error) {
+        console.error('Error during token verification:', error);
+        throw new Error('Invalid ID Token');
     }
 }
+
+

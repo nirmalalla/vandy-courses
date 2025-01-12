@@ -67,13 +67,13 @@ export default function SearchBar(){
             <AutoComplete
                 value={chosen} 
                 options={filteredOptions}
-                style={{width: 300}}
+                style={{width: 300, height: 40}}
                 onChange={onChange}
                 onSearch={onSearch}
-                placeholder="course name"
+                placeholder="Course Name"
                 size="large"
             />
-            <Button type="primary" onClick={onClick} style={{margin: 4}}>search</Button>
+            <Button type="primary" onClick={onClick} style={{margin: 4}}>Search</Button>
         </>
     )
 }
