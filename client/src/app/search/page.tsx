@@ -20,9 +20,11 @@ interface Grade{
     createdAt?: Date;
     updatedAt?: Date;
 }
+import { useRouter } from "next/navigation";
 
 export default function CourseDisplay(){
     const [gradeData, setGradeData] = useState<DataPoint[]>([]);
+    const router = useRouter();
     
     const getGrades = async () => {
         const params = new URLSearchParams(window.location.search);
@@ -55,6 +57,9 @@ export default function CourseDisplay(){
         setGradeData(frequencyArray);
     }
 
+    const onClick = () => {
+        router.push(`/post`);
+    }
     useEffect(() => {
         getGrades();
     }, [])
@@ -63,8 +68,8 @@ export default function CourseDisplay(){
         <>
             <Layout>
                 <Header style={{ display: "flex", minHeight: "15vh", backgroundColor: "white", alignItems: "center"}}>
-                    <h1 style={{padding: 4}}>vandycourses</h1>
-                    <Button variant="text" color="default">Post</Button>
+                    <h1 style={{padding: 4}}>VandyCourses</h1>
+                    <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
                     <CustomBarChart data={gradeData} />

@@ -2,7 +2,6 @@
 
 import { Layout, Button } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
-import { Form, Input } from 'antd';
 import { useRouter } from "next/navigation";
 
 export default function LoginPage(){
