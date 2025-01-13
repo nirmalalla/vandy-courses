@@ -3,8 +3,7 @@
 import { useState} from "react";
 import { Layout, Button } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
-import type { FormProps } from 'antd';
-import { Checkbox, Form, Input, Select } from 'antd';
+import { Form, Input, Select } from 'antd';
 import { useRouter } from "next/navigation";
 
 export default function PostForm(){
@@ -13,32 +12,39 @@ export default function PostForm(){
     const [grade, setGrade] = useState("A+");
     const router = useRouter();
 
-    const onClick = async () => {
+    const onClick = () => {
+        router.push(`/post`);
+    }
+
+    const onSubmit = async () => {
         try {
+
             const res = await fetch('http://localhost:5000/api/grades', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                // Include credentials to ensure cookies are sent
+                credentials: 'include',
                 body: JSON.stringify({ course, gradeReceived: grade, prof })
             });
-            
+
             const statusCode = res.status;
 
-            if (!res.ok){
-                if (statusCode === 401 || statusCode === 403){
+            if (!res.ok) {
+                if (statusCode === 401 || statusCode === 403) {
                     router.push("/login");
-                }else{
-                    console.log("invalid info");
+                } else {
+                    console.log("Invalid info");
                 }
-            }else{
-                console.log("grade created");
+            } else {
+                console.log("Grade created");
                 router.push('/');
             }
         } catch (error) {
-            console.error("error: ", error);
+            console.error("Error: ", error);
         }
-    }
+    };
 
     const handleCourseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCourse(event.target.value);
@@ -57,8 +63,8 @@ export default function PostForm(){
         <>
             <Layout>
                 <Header style={{ display: "flex", minHeight: "15vh", backgroundColor: "white", alignItems: "center"}}>
-                    <h1 style={{padding: 4}}>vandycourses</h1>
-                    <Button variant="text" color="default">Post</Button>
+                    <h1 style={{padding: 4}}>VandyCourses</h1>
+                    <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
                     <Form
@@ -109,7 +115,7 @@ export default function PostForm(){
                         </Form.Item>
 
                         <Form.Item style={{display: "flex", justifyContent: "center"}}>
-                            <Button type="primary" onClick={onClick}>Submit</Button>
+                            <Button type="primary" onClick={onSubmit}>Submit</Button>
                         </Form.Item>
 
                     </Form>

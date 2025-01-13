@@ -14,81 +14,35 @@ interface AuthenticatedRequest extends Request {
     headers?: AuthenticatedHeaders;
 }
 
-const GOOGLE_PUBLIC_KEYS_URL = "https://www.googleapis.com/oauth2/v3/certs";
-
-let cachedKeys: Record<string, string> = {};
-
-export const getGooglesPublicKeys = async (): Promise<Record<string, string>> => {
-    if (Object.keys(cachedKeys).length === 0){
-        const response = await fetch(GOOGLE_PUBLIC_KEYS_URL);
-
-        if (!response.ok){
-            throw new Error(`Failed to fetch google public keys: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        cachedKeys = data.keys.reduce(
-            (keys: Record<string, string>, key: any) => {
-                keys[key.kid] = key.x5c[0];
-                return keys;
-            },
-            {}
-        );
-    }
-
-    return cachedKeys;
-}
-
+const GOOGLE_OAUTH_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=';
 
 export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
+    const cookie = req.headers.cookie;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ error: "Unauthorized: Missing token"});
+    if (!cookie || !cookie.includes("authToken")) {
+        return res.status(401).json({ error: "Unauthorized: Missing token" });
     }
 
-    const token = authHeader.split(" ")[1];
+    const token = cookie.substring(cookie.indexOf("authToken") + 10);
+    console.log("Token:", token);
 
     try {
-        const publicKeys = await getGooglesPublicKeys();
-        const decodedHeader = jwt.decode(token, { complete: true}) as any;
+        // Step 1: Validate the token with Google
+        const response = await fetch(`${GOOGLE_OAUTH_URL}${token}`);
+        const data = await response.json();
+        console.log(data)
 
-        if (!decodedHeader || !decodedHeader.header.kid) {
-            throw new Error("invalid token header");
+        if (response.ok) {
+            console.log('Token validated successfully:', data);
+            next();
+        } else {
+            throw new Error('Invalid token');
         }
-
-        const key = publicKeys[decodedHeader.header.kid];
-
-        if (!key) {
-            throw new Error("no matching public key found");
-        }
-
-        const verifiedPayload = jwt.verify(token, `-----BEGIN CERTIFICATE-----\n${key}\n-----END CERTIFICATE-----`, {
-            algorithms: ['RS256'],
-        }) as JwtPayload;
-
-        req.user = verifiedPayload;
-        next();
     } catch (error) {
         console.error('Token Verification Error: ', error.message);
-        res.status(401).json({ error: "Unauthorized: Invalid token"});
+        res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
-}
+};
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-        return res.status(401).json({ error: "Access denied. No token provided."});
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.id;
-        next();
-    } catch (error) {
-        return res.status(403).json({ error: "Invalid token." });
-    }
-}
 
 

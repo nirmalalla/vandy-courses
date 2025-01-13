@@ -71,8 +71,12 @@ export const getGradesByUserId = async(req: Request, res: Response): Promise<voi
 
 export const addGrade = async (req: Request, res: Response): Promise<void> => {
     const { course, gradeReceived, prof } = req.body;
-    const userId = req.user;
-    console.log(userId, course, gradeReceived, prof);
+
+    const cookie: string = req.headers.cookie;
+    console.log("cookie:", cookie);
+    const userId = cookie.substring(cookie.indexOf("userInfo") + 9, cookie.indexOf("authToken"));
+    console.log("userId:", userId);
+
 
     try {
         await Grade.sync({alter: true});

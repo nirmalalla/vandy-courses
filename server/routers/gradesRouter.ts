@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAllGrades, addGrade, getGradesByCourse, editGrade, deleteGrade, getCourses } from "../controllers/grades";
-import { authenticateToken, authenticate } from "../middleware";
+import { authenticate } from "../middleware";
 
 const gradesRouter = Router();
 

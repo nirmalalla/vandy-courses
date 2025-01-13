@@ -4,7 +4,7 @@ import sequelize from "../config/database"
 
 interface GradeAttributes {
     id?: number;
-    userId: number;
+    userId: string;
     course: string;
     gradeReceived: string;
     prof: string;
@@ -14,7 +14,7 @@ interface GradeAttributes {
 
 export class Grade extends Model<GradeAttributes> implements GradeAttributes {
     public id!: number;
-    public userId!: number;
+    public userId!: string;
     public course!: string;
     public gradeReceived!: string;
     public prof!: string; 
@@ -31,7 +31,7 @@ Grade.init(
             primaryKey: true,
         },
         userId: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.STRING,
             allowNull: false,
         },
         course: {
