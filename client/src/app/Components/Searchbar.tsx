@@ -63,17 +63,31 @@ export default function SearchBar(){
     }, [])
 
     return (
-        <>
+        <div 
+            style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px"
+            }}
+        >
             <AutoComplete
                 value={chosen} 
                 options={filteredOptions}
-                style={{width: 300, height: 40}}
+                style={{
+                    width: 300, 
+                    height: 40, 
+                    fontSize: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 12px"
+                }}
                 onChange={onChange}
                 onSearch={onSearch}
                 placeholder="Course Name"
                 size="large"
             />
             <Button type="primary" onClick={onClick} style={{margin: 4}}>Search</Button>
-        </>
+        </div>
     )
 }

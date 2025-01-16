@@ -1,11 +1,12 @@
 'use client'
 
 import Searchbar from "./Components/Searchbar";
-import { Layout, Button } from "antd";
+import { Layout, Button, Flex } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { Content } from "antd/es/layout/layout";
 import { Footer } from "antd/es/layout/layout";
 import { useRouter } from "next/navigation";
+import TextLoop from "react-text-loop";
 
 export default function Home() {
   const router = useRouter();
@@ -22,7 +23,16 @@ export default function Home() {
           <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
         </Header>
         <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
-          <Searchbar />
+          <Flex gap="middle" vertical>
+            <TextLoop>
+              <h1>Fully Anonymous.</h1>
+              <h1>Real Courses.</h1>
+              <h1>Real Professors.</h1>
+            </TextLoop>
+            <Flex>
+              <Searchbar />
+            </Flex>
+          </Flex>
         </Content>
         <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
           <p style={{color: "white"}}>made by nirmal</p>
