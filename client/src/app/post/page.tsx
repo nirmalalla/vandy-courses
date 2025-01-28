@@ -1,7 +1,7 @@
 'use client'
 
 import { useState} from "react";
-import { Layout, Button } from "antd";
+import { Layout, Button, Space } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
 import { Form, Input, Select } from 'antd';
 import { useRouter } from "next/navigation";
@@ -67,58 +67,62 @@ export default function PostForm(){
                     <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
-                    <Form
-                        name="basic"
-                        labelCol={{ span: 8 }}
-                        wrapperCol={{ span: 16 }}
-                        style={{ maxWidth: 600 }}
-                        initialValues={{ remember: true }}
-                        autoComplete="off"
-                    >
-                        <Form.Item
-                            label="Course"
-                            rules={[{ required: true, message: 'Please Input your Course' }]}
+                    <Space direction="vertical" size="large">
+                        <h1>Post a Grade</h1>
+                        <Form
+                            name="basic"
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 16 }}
+                            style={{ maxWidth: 600 }}
+                            initialValues={{ remember: true }}
+                            autoComplete="off"
                         >
-                            <Input value={course} onChange={handleCourseChange} placeholder="e.g. CS2201" />
-                        </Form.Item>
+                            <Form.Item
+                                label="Course"
+                                rules={[{ required: true, message: 'Please Input your Course' }]}
+                            >
+                                <Input value={course} onChange={handleCourseChange} placeholder="e.g. CS2201" />
+                            </Form.Item>
 
-                        <Form.Item
-                            label="Professor"
-                            rules={[{required: true, message: "Please Input your Professor"}]}
-                        >
-                            <Input value={prof} onChange={handleProfChange} placeholder="e.g. John Doe"/>
-                        </Form.Item>
+                            <Form.Item
+                                label="Professor"
+                                rules={[{required: true, message: "Please Input your Professor"}]}
+                            >
+                                <Input value={prof} onChange={handleProfChange} placeholder="e.g. John Doe"/>
+                            </Form.Item>
 
-                        <Form.Item
-                            label="Grade"
-                            rules={[{required: true, message: "Please Input your Grade"}]}
-                        >
-                            <Select 
-                                onChange={handleGradeChange}
-                                style={{ width: 120 }}
-                                options={[
-                                    {value: 'A+', label: 'A+'},
-                                    { value: 'A', label: 'A' },
-                                    { value: 'A-', label: 'A-' },
-                                    { value: 'B+', label: 'B+' },
-                                    { value: 'B', label: 'B'},
-                                    {value: 'B-', label: 'B-'},
-                                    {value: 'C+', label: 'C+'},
-                                    {value: 'C', label: 'C'},
-                                    {value: 'C-', label: 'C-'},
-                                    {value: 'D+', label: 'D+'},
-                                    {value: 'D', label: 'D'},
-                                    {value: 'D-', label: 'D-'},
-                                    {value: 'F', label: 'F'}
-                                ]}
-                            />
-                        </Form.Item>
+                            <Form.Item
+                                label="Grade"
+                                rules={[{required: true, message: "Please Input your Grade"}]}
+                            >
+                                <Select 
+                                    onChange={handleGradeChange}
+                                    style={{ width: 120 }}
+                                    options={[
+                                        {value: 'A+', label: 'A+'},
+                                        { value: 'A', label: 'A' },
+                                        { value: 'A-', label: 'A-' },
+                                        { value: 'B+', label: 'B+' },
+                                        { value: 'B', label: 'B'},
+                                        {value: 'B-', label: 'B-'},
+                                        {value: 'C+', label: 'C+'},
+                                        {value: 'C', label: 'C'},
+                                        {value: 'C-', label: 'C-'},
+                                        {value: 'D+', label: 'D+'},
+                                        {value: 'D', label: 'D'},
+                                        {value: 'D-', label: 'D-'},
+                                        {value: 'F', label: 'F'}
+                                    ]}
+                                />
+                            </Form.Item>
 
-                        <Form.Item style={{display: "flex", justifyContent: "center"}}>
-                            <Button type="primary" onClick={onSubmit}>Submit</Button>
-                        </Form.Item>
+                            <Form.Item style={{display: "flex", justifyContent: "center"}}>
+                                <Button type="primary" onClick={onSubmit}>Submit</Button>
+                            </Form.Item>
 
-                    </Form>
+                        </Form>
+
+                    </Space>
                 </Content>
                 <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
                     <p style={{color: "white"}}>made by nirmal</p>

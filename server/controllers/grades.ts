@@ -12,6 +12,7 @@ export const getAllGrades = async(req: Request, res: Response): Promise<void> =>
     }
 }
 
+
 export const getGradesByCourse = async(req: Request, res: Response): Promise<void> => {
     const course = req.params.courseId; 
     try { 

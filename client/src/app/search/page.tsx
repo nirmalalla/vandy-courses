@@ -1,6 +1,6 @@
 'use client'
 
-import { Layout, Button } from "antd";
+import { Layout, Button, Select, Flex } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
 import { useEffect, useState } from "react";
 import CustomBarChart from "../Components/CustomBarChart";
@@ -24,15 +24,28 @@ import { useRouter } from "next/navigation";
 
 export default function CourseDisplay(){
     const [gradeData, setGradeData] = useState<DataPoint[]>([]);
+    const [rawData, setRawData] = useState<Grade[]>([]);
+    const [filtered, setFiltered] = useState<DataPoint[]>([]);
+    const [profs, setProfs] = useState<string[]>([]);
     const router = useRouter();
     
     const getGrades = async () => {
         const params = new URLSearchParams(window.location.search);
         const query = params.get('query');
         const res = await fetch(`http://localhost:5000/api/grades/course/${query}`);
-        const data = await res.json();
+        const data: Grade[] = await res.json();
+        setRawData(data);
 
-        getFrequencies(data);
+        let tmpProfs: string[] = [];
+
+        for (let i = 0; i < data.length; i++){
+            if (tmpProfs.indexOf(data[i].prof) == -1){
+                tmpProfs.push(data[i].prof);
+            }
+        }
+
+        setProfs(tmpProfs);
+        setGradeData(getFrequencies(data));
     }
 
     const getFrequencies = (grades: Grade[]) => {
@@ -54,8 +67,18 @@ export default function CourseDisplay(){
             frequencyArray.push({grade:key, frequency:value});
         })
 
-        setGradeData(frequencyArray);
+        return frequencyArray;
     }
+
+    const chooseProf = (prof: string) => {
+        if (prof === "all"){
+            setFiltered([]);
+        }else{
+            let tmp = rawData.filter((grade) => grade.prof === prof);
+            setFiltered(getFrequencies(tmp));
+        }
+    }
+
 
     const onClick = () => {
         router.push(`/post`);
@@ -72,7 +95,15 @@ export default function CourseDisplay(){
                     <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
-                    <CustomBarChart data={gradeData} />
+                    {filtered.length === 0 ? 
+                        <CustomBarChart data={gradeData} />: <CustomBarChart data={filtered} /> 
+                    }
+                    <Select style={{ width: "30vw", marginLeft: "16px" }} onChange={(value) => {chooseProf(value)}} defaultValue="All">
+                        <Select.Option value="all">All</Select.Option>
+                        {profs.map((prof) => (
+                            <Select.Option value={prof}>{prof}</Select.Option>
+                        ))}
+                    </Select>
                 </Content>
                 <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
                     <p style={{color: "white"}}>made by nirmal</p>
