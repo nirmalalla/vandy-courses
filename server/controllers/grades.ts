@@ -94,7 +94,13 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
     const cookie: string = req.headers.cookie;
     const userId = cookie.substring(cookie.indexOf("userInfo") + 9);
     const decoded = decodeURIComponent(userId);
-    const email = JSON.parse(decoded).email;
+    const email: string = JSON.parse(decoded).email;
+
+    if (email.substring(email.length - 14) !== "vanderbilt.edu"){
+        res.status(401).json({error: "non vanderbilt"});
+        return;
+    }
+
     const hashedEmail = createHash('sha256').update(email).digest("hex");
 
     try {

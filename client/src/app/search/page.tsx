@@ -83,6 +83,11 @@ export default function CourseDisplay(){
     const onClick = () => {
         router.push(`/post`);
     }
+
+    const onLogin = () => {
+        router.push("/login");
+    }
+
     useEffect(() => {
         getGrades();
     }, [])
@@ -95,6 +100,7 @@ export default function CourseDisplay(){
                         <h1 style={{padding: 4}}>VandyCourses</h1>
                     </a>
                     <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
+                    <Button style={{ marginTop: 6}} onClick={onLogin} variant="text" color="default">Login</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
                     {filtered.length === 0 ? 

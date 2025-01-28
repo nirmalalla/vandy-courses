@@ -3,9 +3,10 @@
 import { useEffect, useState} from "react";
 import { Layout, Button, Space, AutoComplete } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
-import { Form, Input, Select } from 'antd';
+import { Form, Select, notification } from 'antd';
 import { useRouter } from "next/navigation";
 import { CourseName, Option } from "../Components/Searchbar";
+import { NotificationPlacement } from "antd/es/notification/interface";
 
 interface Professor{
     value?: string;
@@ -19,6 +20,7 @@ export default function PostForm(){
     const [allOptions, setAllOptions] = useState<Option[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
     const [chosen, setChosen] = useState("");
+    const [api, contextHolder] = notification.useNotification();
     const router = useRouter();
 
     const onClick = () => {
@@ -96,6 +98,15 @@ export default function PostForm(){
         setFilteredProfs(filtered);
     }
 
+
+    const openNotification = () => {
+        api["error"]({
+            message: "Must use a Vanderbilt Email",
+            description: "Please Login Again",
+            placement: "bottomRight"
+        })
+    }
+
     const onSubmit = async () => {
         try {
 
@@ -112,7 +123,10 @@ export default function PostForm(){
             const statusCode = res.status;
 
             if (!res.ok) {
-                if (statusCode === 401 || statusCode === 403) {
+                const errorData = await res.json();
+                if (errorData.error === "non vanderbilt"){
+                    openNotification();
+                }else if (statusCode === 401 || statusCode === 403) {
                     router.push("/login");
                 } else {
                     console.log("Invalid info");
@@ -127,6 +141,10 @@ export default function PostForm(){
     };
 
 
+    const onLogin = () => {
+        router.push("/login");
+    }
+
     const handleGradeChange = (value: string) => {
         setGrade(value);
     }
@@ -139,11 +157,13 @@ export default function PostForm(){
     return (
         <>
             <Layout>
+                {contextHolder}
                 <Header style={{ display: "flex", minHeight: "15vh", backgroundColor: "white", alignItems: "center"}}>
                     <a href="/" style={{color: "black"}}>
                         <h1 style={{padding: 4}}>VandyCourses</h1>
                     </a>
                     <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
+                    <Button style={{ marginTop: 6}} onClick={onLogin} variant="text" color="default">Login</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
                     <Space direction="vertical" size="large">

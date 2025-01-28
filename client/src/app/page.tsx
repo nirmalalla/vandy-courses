@@ -15,12 +15,17 @@ export default function Home() {
     router.push(`/post`);
   }
   
+  const onLogin = () => {
+    router.push("/login");
+  }
+  
   return (
     <>
       <Layout>
         <Header style={{ display: "flex", minHeight: "15vh", backgroundColor: "white", alignItems: "center"}}>
           <h1 style={{padding: 4}}>VandyCourses</h1>
           <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
+          <Button style={{ marginTop: 6}} onClick={onLogin} variant="text" color="default">Login</Button>
         </Header>
         <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
           <Flex gap="middle" vertical>
