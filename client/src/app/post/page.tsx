@@ -7,8 +7,14 @@ import { Form, Input, Select } from 'antd';
 import { useRouter } from "next/navigation";
 import { CourseName, Option } from "../Components/Searchbar";
 
+interface Professor{
+    value?: string;
+}
+
 export default function PostForm(){
     const [prof, setProf] = useState("");
+    const [availProfs, setAvailProfs] = useState<Option[]>([]);
+    const [filteredProfs, setFilteredProfs] = useState<Option[]>([]);
     const [grade, setGrade] = useState("A+");
     const [allOptions, setAllOptions] = useState<Option[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
@@ -36,6 +42,25 @@ export default function PostForm(){
         setFilteredOptions(courses);
     }
 
+    const getProfs = async (courseId: string) => {
+        const res = await fetch(`http://localhost:5000/api/grades/profs/${courseId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+
+        const data = await res.json();
+        const profs: Professor[] = [];
+
+        for (let i = 0; i < data.professors.length; i++){
+            profs.push({value: data.professors[i]});
+        }
+
+        setAvailProfs(profs);
+        setFilteredProfs(profs);
+    }
+
     const getPanelValue = (searchText: string) => {
         if (!searchText) return allOptions;
 
@@ -43,14 +68,32 @@ export default function PostForm(){
             option?.value?.toLowerCase().includes(searchText.toLowerCase())
         );
     }
+    
+    const getProfPanelValue = (searchText: string) => {
+        if (!searchText) return availProfs;
+
+        return availProfs.filter((option: Option) => 
+            option?.value?.toLowerCase().includes(searchText.toLowerCase())
+        );
+    }
 
     const onChange = (data: string) => {
         setChosen(data);
+        getProfs(data);
+    }
+
+    const onProfChange = (data: string) => {
+        setProf(data);
     }
 
     const onSearch = (text: string) => {
         const filtered = getPanelValue(text);
         setFilteredOptions(filtered);
+    }
+
+    const onProfSearch = (text: string) => {
+        const filtered = getProfPanelValue(text);
+        setFilteredProfs(filtered);
     }
 
     const onSubmit = async () => {
@@ -83,9 +126,6 @@ export default function PostForm(){
         }
     };
 
-    const handleProfChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setProf(event.target.value);
-    }
 
     const handleGradeChange = (value: string) => {
         setGrade(value);
@@ -139,7 +179,20 @@ export default function PostForm(){
                                 label="Professor"
                                 rules={[{required: true, message: "Please Input your Professor"}]}
                             >
-                                <Input value={prof} onChange={handleProfChange} placeholder="e.g. John Doe"/>
+                                <AutoComplete
+                                    value={prof}
+                                    options={filteredProfs}
+                                    style={{
+                                        width: 200, 
+                                        height: 30, 
+                                        fontSize: "16px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                    }}
+                                    onChange={onProfChange}
+                                    onSearch={onProfSearch}
+                                    placeholder="Professor"
+                                />
                             </Form.Item>
 
                             <Form.Item

@@ -53,6 +53,23 @@ export const getCourses = async(req: Request, res: Response): Promise<void> => {
     }
 }
 
+export const getProfs = async(req: Request, res: Response): Promise<void> => {
+    const course = req.params.courseId;
+
+
+    try{
+        const professors = await Grade.findAll({
+            where: { course },
+            attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('prof')), 'prof']],
+        });
+
+        return res.json({professors: professors.map((professor => professor.get('prof')))},);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({message: "internal server error."});
+    }
+}
+
 export const getGradesByUserId = async(req: Request, res: Response): Promise<void> => {
     const { userId } = req.user;
 
