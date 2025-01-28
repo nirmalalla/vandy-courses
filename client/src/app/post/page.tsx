@@ -1,19 +1,56 @@
 'use client'
 
-import { useState} from "react";
-import { Layout, Button, Space } from "antd";
+import { useEffect, useState} from "react";
+import { Layout, Button, Space, AutoComplete } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
 import { Form, Input, Select } from 'antd';
 import { useRouter } from "next/navigation";
+import { CourseName, Option } from "../Components/Searchbar";
 
 export default function PostForm(){
-    const [course, setCourse] = useState("");
     const [prof, setProf] = useState("");
     const [grade, setGrade] = useState("A+");
+    const [allOptions, setAllOptions] = useState<Option[]>([]);
+    const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
+    const [chosen, setChosen] = useState("");
     const router = useRouter();
 
     const onClick = () => {
         router.push(`/post`);
+    }
+
+    const getCourses = async () => {
+        const res = await fetch("http://localhost:5000/api/grades/course", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await res.json();
+        const courses = data.map((item: CourseName) => ({
+            value: item.course,
+        }));
+        
+        setAllOptions(courses);
+        setFilteredOptions(courses);
+    }
+
+    const getPanelValue = (searchText: string) => {
+        if (!searchText) return allOptions;
+
+        return allOptions.filter((option: Option) => 
+            option?.value?.toLowerCase().includes(searchText.toLowerCase())
+        );
+    }
+
+    const onChange = (data: string) => {
+        setChosen(data);
+    }
+
+    const onSearch = (text: string) => {
+        const filtered = getPanelValue(text);
+        setFilteredOptions(filtered);
     }
 
     const onSubmit = async () => {
@@ -26,7 +63,7 @@ export default function PostForm(){
                 },
                 // Include credentials to ensure cookies are sent
                 credentials: 'include',
-                body: JSON.stringify({ course, gradeReceived: grade, prof })
+                body: JSON.stringify({ course: chosen, gradeReceived: grade, prof: prof })
             });
 
             const statusCode = res.status;
@@ -46,10 +83,6 @@ export default function PostForm(){
         }
     };
 
-    const handleCourseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setCourse(event.target.value);
-    }
-
     const handleProfChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setProf(event.target.value);
     }
@@ -58,12 +91,18 @@ export default function PostForm(){
         setGrade(value);
     }
 
+    useEffect(() => {
+        getCourses();
+    }, [])
+
 
     return (
         <>
             <Layout>
                 <Header style={{ display: "flex", minHeight: "15vh", backgroundColor: "white", alignItems: "center"}}>
-                    <h1 style={{padding: 4}}>VandyCourses</h1>
+                    <a href="/" style={{color: "black"}}>
+                        <h1 style={{padding: 4}}>VandyCourses</h1>
+                    </a>
                     <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
@@ -79,9 +118,21 @@ export default function PostForm(){
                         >
                             <Form.Item
                                 label="Course"
-                                rules={[{ required: true, message: 'Please Input your Course' }]}
                             >
-                                <Input value={course} onChange={handleCourseChange} placeholder="e.g. CS2201" />
+                                <AutoComplete
+                                    value={chosen}
+                                    options={filteredOptions}
+                                    style={{
+                                        width: 200, 
+                                        height: 30, 
+                                        fontSize: "16px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                    }}
+                                    onChange={onChange}
+                                    onSearch={onSearch}
+                                    placeholder="Course Name"
+                                />
                             </Form.Item>
 
                             <Form.Item

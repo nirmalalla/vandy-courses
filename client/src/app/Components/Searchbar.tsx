@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { AutoComplete, Button } from "antd";
 import { useRouter } from "next/navigation";
 
-interface CourseName{
+export interface CourseName{
     course?: string
 }
 
-interface Option{
+export interface Option{
     value?: string
 }
 
@@ -85,7 +85,6 @@ export default function SearchBar(){
                 onChange={onChange}
                 onSearch={onSearch}
                 placeholder="Course Name"
-                size="large"
             />
             <Button type="primary" onClick={onClick} style={{margin: 4}}>Search</Button>
         </div>

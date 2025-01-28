@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Grade from "../models/Grade";
 import { Sequelize } from "sequelize";
 import sequelize from "sequelize";
+import { createHash, hash } from "crypto";
 
 export const getAllGrades = async(req: Request, res: Response): Promise<void> => {
     try {
@@ -74,10 +75,10 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
     const { course, gradeReceived, prof } = req.body;
 
     const cookie: string = req.headers.cookie;
-    console.log("cookie:", cookie);
-    const userId = cookie.substring(cookie.indexOf("userInfo") + 9, cookie.indexOf("authToken"));
-    console.log("userId:", userId);
-
+    const userId = cookie.substring(cookie.indexOf("userInfo") + 9);
+    const decoded = decodeURIComponent(userId);
+    const email = JSON.parse(decoded).email;
+    const hashedEmail = createHash('sha256').update(email).digest("hex");
 
     try {
         await Grade.sync({alter: true});
@@ -88,7 +89,7 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
         }
 
         const newGrade = await Grade.create({
-            userId,
+            userId: hashedEmail,
             course,
             gradeReceived,
             prof

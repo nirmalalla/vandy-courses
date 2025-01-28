@@ -91,7 +91,9 @@ export default function CourseDisplay(){
         <>
             <Layout>
                 <Header style={{ display: "flex", minHeight: "15vh", backgroundColor: "white", alignItems: "center"}}>
-                    <h1 style={{padding: 4}}>VandyCourses</h1>
+                    <a href="/" style={{color: "black"}}>
+                        <h1 style={{padding: 4}}>VandyCourses</h1>
+                    </a>
                     <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
