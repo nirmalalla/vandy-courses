@@ -17,6 +17,7 @@ interface Grade{
     course: string;
     gradeReceived: string;
     prof: string;
+    term: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -25,8 +26,11 @@ import { useRouter } from "next/navigation";
 export default function CourseDisplay(){
     const [gradeData, setGradeData] = useState<DataPoint[]>([]);
     const [rawData, setRawData] = useState<Grade[]>([]);
+    const [cProf, setCProf] = useState<string>("");
+    const [cTerm, setCTerm] = useState<string>("");
     const [filtered, setFiltered] = useState<DataPoint[]>([]);
     const [profs, setProfs] = useState<string[]>([]);
+    const [terms, setTerms] = useState<string[]>([]);
     const router = useRouter();
     
     const getGrades = async () => {
@@ -37,14 +41,20 @@ export default function CourseDisplay(){
         setRawData(data);
 
         let tmpProfs: string[] = [];
+        let tmpTerms: string[] = [];
 
         for (let i = 0; i < data.length; i++){
-            if (tmpProfs.indexOf(data[i].prof) == -1){
+            if (tmpProfs.indexOf(data[i].prof) === -1){
                 tmpProfs.push(data[i].prof);
+            }
+            if (tmpTerms.indexOf(data[i].term) === -1){
+                tmpTerms.push(data[i].term);
             }
         }
 
+
         setProfs(tmpProfs);
+        setTerms(tmpTerms);
         setGradeData(getFrequencies(data));
     }
 
@@ -71,10 +81,48 @@ export default function CourseDisplay(){
     }
 
     const chooseProf = (prof: string) => {
-        if (prof === "all"){
-            setFiltered([]);
+        if (prof === "all professors"){
+            setCProf("");
+
+            if (!cTerm){
+                setFiltered([]);
+            }else{
+                let tmp = rawData.filter((grade) => grade.term === cTerm)
+                setFiltered(getFrequencies(tmp));
+            }
+
         }else{
-            let tmp = rawData.filter((grade) => grade.prof === prof);
+            let tmp = [];
+            setCProf(prof);
+            if (!cTerm){
+                tmp = rawData.filter((grade) => grade.prof === prof);
+            }else{
+                tmp = rawData.filter((grade) => grade.prof === prof && grade.term === cTerm); 
+            }
+
+            setFiltered(getFrequencies(tmp));
+        }
+    }
+
+    const chooseTerm = (term: string) => {
+        if (term === "all terms"){
+            setCTerm("");
+
+            if (!cProf){
+                setFiltered([]);
+            }else{
+                let tmp = rawData.filter((grade) => grade.prof === cProf)
+                setFiltered(getFrequencies(tmp));
+            }
+        }else{
+            let tmp = [];
+            setCTerm(term);
+            if (!cProf){
+                tmp = rawData.filter((grade) => grade.term === term);
+            }else{
+                tmp = rawData.filter((grade) => grade.term === term && grade.prof === cProf);
+            }
+
             setFiltered(getFrequencies(tmp));
         }
     }
@@ -103,18 +151,30 @@ export default function CourseDisplay(){
                     <Button style={{ marginTop: 6}} onClick={onLogin} variant="text" color="default">Login</Button>
                 </Header>
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
-                    {filtered.length === 0 ? 
+                    {!cProf && !cTerm ? 
                         <CustomBarChart data={gradeData} />: <CustomBarChart data={filtered} /> 
                     }
-                    <Select style={{ width: "30vw", marginLeft: "16px" }} onChange={(value) => {chooseProf(value)}} defaultValue="All">
-                        <Select.Option value="all">All</Select.Option>
-                        {profs.map((prof) => (
-                            <Select.Option value={prof}>{prof}</Select.Option>
-                        ))}
-                    </Select>
+                    <Flex vertical>
+                        <Select style={{ width: "20vw", marginLeft: "16px", marginBottom: "1vh"}} onChange={(value) => {chooseProf(value)}} defaultValue="All Professors">
+                            <Select.Option value="all professors">All Professors</Select.Option>
+                            {profs.map((prof) => (
+                                <Select.Option value={prof}>{prof}</Select.Option>
+                            ))}
+                        </Select>
+                        <Select style={{ width: "20vw", marginLeft: "16px", marginBottom: "1vh"}} onChange={(value) => {chooseTerm(value)}} defaultValue="All Terms">
+                            <Select.Option value="all terms">All Terms</Select.Option>
+                            {terms.map((term) => (
+                                <Select.Option value={term}>{term}</Select.Option>
+                            ))}
+                        </Select>
+                    </Flex>
+
                 </Content>
                 <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
-                    <p style={{color: "white"}}>made by nirmal</p>
+                    <Flex style={{justifyContent: "center"}}>
+                        <p style={{color: "white", marginRight: "2vw"}}>Privacy Info</p>
+                        <p style={{color: "white", marginLeft: "2vw"}}>Source Code</p>
+                    </Flex>
                 </Footer>
             </Layout>
         </>

@@ -27,9 +27,9 @@ export default function Home() {
           <Button style={{ marginTop: 6}} onClick={onClick} variant="text" color="default">Post</Button>
           <Button style={{ marginTop: 6}} onClick={onLogin} variant="text" color="default">Login</Button>
         </Header>
-        <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
+        <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "77vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
           <Flex gap="middle" vertical>
-            <TextLoop>
+            <TextLoop interval={1500}>
               <h1>Fully Anonymous.</h1>
               <h1>Real Courses.</h1>
               <h1>Real Professors.</h1>
@@ -39,8 +39,11 @@ export default function Home() {
             </Flex>
           </Flex>
         </Content>
-        <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
-          <p style={{color: "white"}}>made by nirmal</p>
+        <Footer style={{ textAlign: "center", backgroundColor: "black", minHeight: "1vh"}}>
+          <Flex style={{justifyContent: "center"}}>
+            <p style={{color: "white", marginRight: "2vw"}}>Privacy Info</p>
+            <p style={{color: "white", marginLeft: "2vw"}}>Source Code</p>
+          </Flex>
         </Footer>
       </Layout>
     </>

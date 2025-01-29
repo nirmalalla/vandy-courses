@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState} from "react";
-import { Layout, Button, Space, AutoComplete } from "antd";
+import { Layout, Button, Space, AutoComplete, Flex, Input } from "antd";
 import { Header, Content, Footer } from "antd/es/layout/layout";
 import { Form, Select, notification } from 'antd';
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ export default function PostForm(){
     const [allOptions, setAllOptions] = useState<Option[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
     const [chosen, setChosen] = useState("");
+    const [term, setTerm] = useState("");
     const [api, contextHolder] = notification.useNotification();
     const router = useRouter();
 
@@ -107,6 +108,14 @@ export default function PostForm(){
         })
     }
 
+    const invalidInfoNotif = () => {
+        api["error"]({
+            message: "Invalid Info",
+            description: "Please fill out all data fields",
+            placement: "bottomRight"
+        })
+    }
+
     const onSubmit = async () => {
         try {
 
@@ -117,7 +126,7 @@ export default function PostForm(){
                 },
                 // Include credentials to ensure cookies are sent
                 credentials: 'include',
-                body: JSON.stringify({ course: chosen, gradeReceived: grade, prof: prof })
+                body: JSON.stringify({ course: chosen, gradeReceived: grade, prof: prof, term: term })
             });
 
             const statusCode = res.status;
@@ -129,7 +138,7 @@ export default function PostForm(){
                 }else if (statusCode === 401 || statusCode === 403) {
                     router.push("/login");
                 } else {
-                    console.log("Invalid info");
+                    invalidInfoNotif();
                 }
             } else {
                 console.log("Grade created");
@@ -147,6 +156,10 @@ export default function PostForm(){
 
     const handleGradeChange = (value: string) => {
         setGrade(value);
+    }
+    
+    const handleTermChange = (value: string) => {
+        setTerm(value);
     }
 
     useEffect(() => {
@@ -191,7 +204,7 @@ export default function PostForm(){
                                     }}
                                     onChange={onChange}
                                     onSearch={onSearch}
-                                    placeholder="Course Name"
+                                    placeholder="e.g. CS-2201"
                                 />
                             </Form.Item>
 
@@ -211,8 +224,15 @@ export default function PostForm(){
                                     }}
                                     onChange={onProfChange}
                                     onSearch={onProfSearch}
-                                    placeholder="Professor"
+                                    placeholder="e.g. John Doe"
                                 />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Term"
+                                rules={[{required: true}]}
+                            >
+                                <Input value={term} onChange={(e) => handleTermChange(e.target.value)} placeholder="e.g. 25S"/>
                             </Form.Item>
 
                             <Form.Item
@@ -249,7 +269,10 @@ export default function PostForm(){
                     </Space>
                 </Content>
                 <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
-                    <p style={{color: "white"}}>made by nirmal</p>
+                    <Flex style={{justifyContent: "center"}}>
+                        <p style={{color: "white", marginRight: "2vw"}}>Privacy Info</p>
+                        <p style={{color: "white", marginLeft: "2vw"}}>Source Code</p>
+                    </Flex>
                 </Footer>
             </Layout>
         </>

@@ -89,7 +89,7 @@ export const getGradesByUserId = async(req: Request, res: Response): Promise<voi
 }
 
 export const addGrade = async (req: Request, res: Response): Promise<void> => {
-    const { course, gradeReceived, prof } = req.body;
+    const { course, gradeReceived, prof, term } = req.body;
 
     const cookie: string = req.headers.cookie;
     const userId = cookie.substring(cookie.indexOf("userInfo") + 9);
@@ -106,7 +106,7 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
     try {
         await Grade.sync({alter: true});
 
-        if (!userId || !course || !gradeReceived || !prof){
+        if (!userId || !course || !gradeReceived || !prof || !term){
             res.status(400).json({error: "All fields are required"});
             return;
         }
@@ -115,7 +115,8 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
             userId: hashedEmail,
             course,
             gradeReceived,
-            prof
+            prof,
+            term
         });
 
         res.status(201).json(newGrade);
@@ -125,7 +126,7 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
 }
 
 export const editGrade = async (req: Request, res: Response): Promise<void> => {
-    const { id, gradeReceived, prof } = req.body;
+    const { id, gradeReceived, prof, term } = req.body;
     const userId = req.user;
 
     try {
@@ -135,7 +136,7 @@ export const editGrade = async (req: Request, res: Response): Promise<void> => {
             res.status(404).json({ error: "Grade not found or not authorized to edit this grade."});
         }
 
-        await Grade.update({ gradeReceived, prof }, { where: { id }});
+        await Grade.update({ gradeReceived, prof, term }, { where: { id }});
         
         res.status(200).json({message: "grade updated successfully"});
     } catch (error){

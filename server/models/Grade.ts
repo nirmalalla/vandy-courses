@@ -8,6 +8,7 @@ interface GradeAttributes {
     course: string;
     gradeReceived: string;
     prof: string;
+    term: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -18,6 +19,7 @@ export class Grade extends Model<GradeAttributes> implements GradeAttributes {
     public course!: string;
     public gradeReceived!: string;
     public prof!: string; 
+    public term!: string;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -43,6 +45,10 @@ Grade.init(
             allowNull: false,
         },
         prof: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        term: {
             type: DataTypes.STRING,
             allowNull: false,
         }
