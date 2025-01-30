@@ -2,14 +2,11 @@
 
 import { useEffect, useState} from "react";
 import { Layout, Button, Space, AutoComplete, Flex, Input } from "antd";
-import { Header, Content, Footer } from "antd/es/layout/layout";
+import { Content, Footer } from "antd/es/layout/layout";
 import { Form, Select, notification } from 'antd';
 import { useRouter } from "next/navigation";
 import { CourseName, Option } from "../Components/Searchbar";
-import { Row, Col } from "antd";
-import Link from "next/link";
-import { MenuProps, Dropdown } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import Navbar from "../Components/Navbar";
 
 interface Professor{
     value?: string;
@@ -24,42 +21,9 @@ export default function PostForm(){
     const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
     const [chosen, setChosen] = useState("");
     const [term, setTerm] = useState("");
-    const [signedIn, setSignedIn] = useState(false);
     const [api, contextHolder] = notification.useNotification();
     const router = useRouter();
 
-    const onClick = () => {
-        router.push(`/post`);
-    }
-
-    const items: MenuProps["items"] = [
-        {
-        label: (
-            <Link href="/login" style={{ color: "black" }} >Switch Account</Link>
-        ),
-        key: 'O'
-        }
-    ]
-    const checkToken = async () => {
-        try {
-
-        const res = await fetch("http://127.0.0.1:5000/api/users/auth/checkCookie", {
-            method: "GET",
-            headers: {
-            "Content-Type": "application/json",
-            },
-            credentials: 'include',
-        });
-
-        if (res.ok){
-            setSignedIn(true);
-        }else{
-            setSignedIn(false);
-        }
-        } catch (error){
-        console.error("error: ", error);
-        }
-    }
     const getCourses = async () => {
         const res = await fetch("http://localhost:5000/api/grades/course", {
             method: "GET",
@@ -143,7 +107,7 @@ export default function PostForm(){
     const invalidInfoNotif = () => {
         api["error"]({
             message: "Invalid Info",
-            description: "Please fill out all data fields",
+            description: "Please fill out all data fields correctly",
             placement: "bottomRight"
         })
     }
@@ -181,11 +145,6 @@ export default function PostForm(){
         }
     };
 
-
-    const onLogin = () => {
-        router.push("/login");
-    }
-
     const handleGradeChange = (value: string) => {
         setGrade(value);
     }
@@ -196,7 +155,6 @@ export default function PostForm(){
 
     useEffect(() => {
         getCourses();
-        checkToken();
     }, [])
 
 
@@ -204,27 +162,7 @@ export default function PostForm(){
         <>
             <Layout>
                 {contextHolder}
-                <Header style={{ backgroundColor: 'white' }}>
-                    <Row justify="space-between" align="middle">
-                    <Space>
-                        <Link href="/" style={{ color:"black" }} ><h1>VandyCourses</h1></Link>
-                        <Button onClick={onClick} type="text" style={{marginTop: "3vh"}}>Post</Button>
-                    </Space>
-                    
-                    <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        {signedIn ?
-                        <Dropdown menu={{items}} trigger={["click"]}>
-                            <Space>
-                            <Button type="text" style={{ marginTop: "3vh"}} >
-                                <UserOutlined style={{ fontSize: '20px' }} />  
-                            </Button>
-                            </Space>
-                        </Dropdown> :
-                        <Button onClick={onLogin} type="text">Login</Button>
-                        }
-                    </Col>
-                    </Row>
-                </Header>
+                <Navbar />
                 <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
                     <Space direction="vertical" size="large">
                         <h1>Post a Grade</h1>

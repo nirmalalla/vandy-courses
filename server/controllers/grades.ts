@@ -3,6 +3,12 @@ import Grade from "../models/Grade";
 import { Sequelize } from "sequelize";
 import crypto from "crypto";
 
+
+const checkTermVal = (data: string) => {
+    const pattern = /^\d{2}[SF]$/;
+    return pattern.test(data);
+}
+
 export const getAllGrades = async(req: Request, res: Response): Promise<void> => {
     try {
         const grades = await Grade.findAll();
@@ -99,6 +105,7 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
 
         // Find the userInfo cookie more reliably
         const userInfoMatch = cookie.match(/userInfo=([^;]+)/);
+
         if (!userInfoMatch) {
             res.status(401).json({ error: "User info not found in cookie" });
             return;
@@ -125,7 +132,7 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
 
         const hashedEmail = crypto.createHash('sha256').update(email).digest("hex");
 
-        if (!course || !gradeReceived || !prof || !term) {
+        if (!course.trim() || !gradeReceived.trim() || !prof.trim() || !term.trim() || !checkTermVal(term.trim())) {
             res.status(400).json({ error: "All fields are required" });
             return;
         }

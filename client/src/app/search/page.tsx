@@ -1,10 +1,10 @@
 'use client'
 
-import { Layout, Button, Select, Flex, Col, Row, Space } from "antd";
-import { Header, Content, Footer } from "antd/es/layout/layout";
+import { Layout, Select, Flex } from "antd";
+import { Content, Footer } from "antd/es/layout/layout";
 import { useEffect, useState } from "react";
 import CustomBarChart from "../Components/CustomBarChart";
-
+import Navbar from "../Components/Navbar";
 
 interface DataPoint{
     grade: string;
@@ -21,10 +21,6 @@ interface Grade{
     createdAt?: Date;
     updatedAt?: Date;
 }
-import { useRouter } from "next/navigation";
-import { UserOutlined } from "@ant-design/icons";
-import Link from "next/link";
-import { Dropdown, MenuProps } from "antd";
 
 export default function CourseDisplay(){
     const [gradeData, setGradeData] = useState<DataPoint[]>([]);
@@ -34,20 +30,12 @@ export default function CourseDisplay(){
     const [filtered, setFiltered] = useState<DataPoint[]>([]);
     const [profs, setProfs] = useState<string[]>([]);
     const [terms, setTerms] = useState<string[]>([]);
-    const [signedIn, setSignedIn] = useState(false);
-    const router = useRouter();
+    const [searched, setSearched] = useState("");
     
-    const items: MenuProps["items"] = [
-        {
-        label: (
-            <Link href="/login" style={{ color: "black" }} >Switch Account</Link>
-        ),
-        key: 'O'
-        }
-    ]
     const getGrades = async () => {
         const params = new URLSearchParams(window.location.search);
         const query = params.get('query');
+        (query) ? setSearched(query): setSearched("");
         const res = await fetch(`http://localhost:5000/api/grades/course/${query}`);
         const data: Grade[] = await res.json();
         setRawData(data);
@@ -139,69 +127,20 @@ export default function CourseDisplay(){
         }
     }
 
-    const checkToken = async () => {
-        try {
-
-        const res = await fetch("http://127.0.0.1:5000/api/users/auth/checkCookie", {
-            method: "GET",
-            headers: {
-            "Content-Type": "application/json",
-            },
-            credentials: 'include',
-        });
-
-        if (res.ok){
-            setSignedIn(true);
-        }else{
-            setSignedIn(false);
-        }
-        } catch (error){
-        console.error("error: ", error);
-        }
-    }
-
-    const onClick = () => {
-        router.push(`/post`);
-    }
-
-    const onLogin = () => {
-        router.push("/login");
-    }
-
     useEffect(() => {
         getGrades();
-        checkToken();
     }, [])
     
     return (
         <>
             <Layout>
-                <Header style={{ backgroundColor: 'white' }}>
-                    <Row justify="space-between" align="middle">
-                        <Space>
-                            <Link href="/" style={{ color: "black" }}><h1>VandyCourses</h1></Link>
-                            <Button onClick={onClick} type="text" style={{marginTop: "3vh"}}>Post</Button>
-                        </Space>
-                        
-                        <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            {signedIn ?
-                            <Dropdown menu={{items}} trigger={["click"]}>
-                                <Space>
-                                <Button type="text" style={{ marginTop: "3vh"}} >
-                                    <UserOutlined style={{ fontSize: '20px' }} />  
-                                </Button>
-                                </Space>
-                            </Dropdown> :
-                            <Button onClick={onLogin} type="text">Login</Button>
-                            }
-                        </Col>
-                    </Row>
-                </Header>
-                <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "75vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
+                <Navbar />
+                <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "77vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
                     {!cProf && !cTerm ? 
                         <CustomBarChart data={gradeData} />: <CustomBarChart data={filtered} /> 
                     }
                     <Flex vertical>
+                        <h1 style={{marginBottom: "3vh", display:"flex", justifyContent: "center"}}>{searched}</h1>
                         <Select style={{ width: "20vw", marginLeft: "16px", marginBottom: "1vh"}} onChange={(value) => {chooseProf(value)}} defaultValue="All Professors">
                             <Select.Option value="all professors">All Professors</Select.Option>
                             {profs.map((prof) => (

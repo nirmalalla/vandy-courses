@@ -14,7 +14,7 @@ type CustomBarChartProps = {
     data: { grade: string; frequency: number}[];
 }
 
-const gradeOrder = ['+A', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'];
+const gradeOrder = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
 
 
 
