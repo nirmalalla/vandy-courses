@@ -7,6 +7,7 @@ import { Form, Select, notification } from 'antd';
 import { useRouter } from "next/navigation";
 import { CourseName, Option } from "../Components/Searchbar";
 import Navbar from "../Components/Navbar";
+import Link from "next/link";
 
 interface Professor{
     value?: string;
@@ -253,10 +254,10 @@ export default function PostForm(){
 
                     </Space>
                 </Content>
-                <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
+                <Footer style={{ textAlign: "center", backgroundColor: "black", minHeight: "1vh"}}>
                     <Flex style={{justifyContent: "center"}}>
-                        <p style={{color: "white", marginRight: "2vw"}}>Privacy Info</p>
-                        <p style={{color: "white", marginLeft: "2vw"}}>Source Code</p>
+                        <Link href="https://github.com/nirmalalla/vandy-courses/blob/main/README.md#privacy-info"><p style={{color: "white", marginRight: "2vw", textDecoration: "underline"}}>Privacy Info</p></Link>
+                        <Link href="https://github.com/nirmalalla/vandy-courses"><p style={{color: "white", marginLeft: "2vw", textDecoration: "underline"}}>Source Code</p></Link>
                     </Flex>
                 </Footer>
             </Layout>

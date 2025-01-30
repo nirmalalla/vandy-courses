@@ -5,6 +5,7 @@ import { Content, Footer } from "antd/es/layout/layout";
 import { useEffect, useState } from "react";
 import CustomBarChart from "../Components/CustomBarChart";
 import Navbar from "../Components/Navbar";
+import Link from "next/link";
 
 interface DataPoint{
     grade: string;
@@ -35,7 +36,12 @@ export default function CourseDisplay(){
     const getGrades = async () => {
         const params = new URLSearchParams(window.location.search);
         const query = params.get('query');
-        (query) ? setSearched(query): setSearched("");
+        if (query){
+            setSearched(query);
+        }else{
+            setSearched("");
+        }
+
         const res = await fetch(`http://localhost:5000/api/grades/course/${query}`);
         const data: Grade[] = await res.json();
         setRawData(data);
@@ -156,10 +162,10 @@ export default function CourseDisplay(){
                     </Flex>
 
                 </Content>
-                <Footer style={{ textAlign: "center", backgroundColor: "black"}}>
+                <Footer style={{ textAlign: "center", backgroundColor: "black", minHeight: "1vh"}}>
                     <Flex style={{justifyContent: "center"}}>
-                        <p style={{color: "white", marginRight: "2vw"}}>Privacy Info</p>
-                        <p style={{color: "white", marginLeft: "2vw"}}>Source Code</p>
+                        <Link href="https://github.com/nirmalalla/vandy-courses/blob/main/README.md#privacy-info"><p style={{color: "white", marginRight: "2vw", textDecoration: "underline"}}>Privacy Info</p></Link>
+                        <Link href="https://github.com/nirmalalla/vandy-courses"><p style={{color: "white", marginLeft: "2vw", textDecoration: "underline"}}>Source Code</p></Link>
                     </Flex>
                 </Footer>
             </Layout>
