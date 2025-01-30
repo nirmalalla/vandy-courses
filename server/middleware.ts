@@ -22,9 +22,9 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
     if (!cookie || !cookie.includes("authToken")) {
         return res.status(401).json({ error: "Unauthorized: Missing token" });
     }
-
+    
     const token = cookie.substring(cookie.indexOf("authToken") + 10, cookie.indexOf(";"));
-
+    console.log("token: ", token)
     try {
         // Step 1: Validate the token with Google
         const response = await fetch(`${GOOGLE_OAUTH_URL}${token}`);

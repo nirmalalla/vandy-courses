@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import Grade from "../models/Grade";
 import { Sequelize } from "sequelize";
-import sequelize from "sequelize";
-import { createHash, hash } from "crypto";
+import crypto from "crypto";
 
 export const getAllGrades = async(req: Request, res: Response): Promise<void> => {
     try {
@@ -49,7 +48,7 @@ export const getCourses = async(req: Request, res: Response): Promise<void> => {
 
         res.status(200).json(courses);
     } catch (error) {
-        res.json(500).json({error: error.message});
+        res.status(500).json({error: error.message});
     }
 }
 
@@ -89,27 +88,49 @@ export const getGradesByUserId = async(req: Request, res: Response): Promise<voi
 }
 
 export const addGrade = async (req: Request, res: Response): Promise<void> => {
-    const { course, gradeReceived, prof, term } = req.body;
-
-    const cookie: string = req.headers.cookie;
-    const userId = cookie.substring(cookie.indexOf("userInfo") + 9);
-    const decoded = decodeURIComponent(userId);
-    const email: string = JSON.parse(decoded).email;
-
-    if (email.substring(email.length - 14) !== "vanderbilt.edu"){
-        res.status(401).json({error: "non vanderbilt"});
-        return;
-    }
-
-    const hashedEmail = createHash('sha256').update(email).digest("hex");
-
     try {
-        await Grade.sync({alter: true});
-
-        if (!userId || !course || !gradeReceived || !prof || !term){
-            res.status(400).json({error: "All fields are required"});
+        const { course, gradeReceived, prof, term } = req.body;
+        const cookie: string = req.headers.cookie;
+        
+        if (!cookie) {
+            res.status(401).json({ error: "No cookie found" });
             return;
         }
+
+        // Find the userInfo cookie more reliably
+        const userInfoMatch = cookie.match(/userInfo=([^;]+)/);
+        if (!userInfoMatch) {
+            res.status(401).json({ error: "User info not found in cookie" });
+            return;
+        }
+
+        const encodedUserInfo = userInfoMatch[1];
+        const decodedUserInfo = decodeURIComponent(encodedUserInfo);
+        
+        let userInfo;
+        try {
+            userInfo = JSON.parse(decodedUserInfo);
+        } catch (e) {
+            console.error('Cookie parsing error:', decodedUserInfo);
+            res.status(400).json({ error: "Invalid cookie format" });
+            return;
+        }
+
+        const email = userInfo.email;
+
+        if (!email || email.substring(email.length - 14) !== "vanderbilt.edu") {
+            res.status(401).json({ error: "non vanderbilt" });
+            return;
+        }
+
+        const hashedEmail = crypto.createHash('sha256').update(email).digest("hex");
+
+        if (!course || !gradeReceived || !prof || !term) {
+            res.status(400).json({ error: "All fields are required" });
+            return;
+        }
+
+        await Grade.sync({ alter: true });
 
         const newGrade = await Grade.create({
             userId: hashedEmail,
@@ -120,10 +141,11 @@ export const addGrade = async (req: Request, res: Response): Promise<void> => {
         });
 
         res.status(201).json(newGrade);
-    } catch (error){
-        res.status(500).json({error: error.message});
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
 export const editGrade = async (req: Request, res: Response): Promise<void> => {
     const { id, gradeReceived, prof, term } = req.body;

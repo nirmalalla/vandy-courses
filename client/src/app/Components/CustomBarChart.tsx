@@ -19,7 +19,13 @@ const gradeOrder = ['+A', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F']
 
 
 const CustomBarChart: React.FC<CustomBarChartProps> = ({ data }) => {
-    const sortedData = [...data].sort((a, b) => gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade));
+    const defaultData = gradeOrder.map(grade => ({ grade, frequency: 0 }));
+
+    // Merge defaultData with the actual data
+    const sortedData = defaultData.map(defaultItem => {
+        const actualItem = data.find(item => item.grade === defaultItem.grade);
+        return actualItem ? actualItem : defaultItem;
+    });
 
     return (
         <ResponsiveContainer width="100%" height={400}>

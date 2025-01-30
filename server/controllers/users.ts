@@ -40,6 +40,33 @@ export const googleAuth = async (req: Request, res: Response) => {
     res.redirect(googleAuthUrl);
 };
 
+export const checkCookie = (req: Request, res: Response): void => {
+    try {
+        const cookies = req.headers.cookie;
+        
+        if (!cookies) {
+            res.json({ authenticated: false });
+            return;
+        }
+
+        // Convert cookies string to array and check for both required values
+        const cookieArray = cookies.split(';').map(cookie => cookie.trim());
+        const hasAuthToken = cookieArray.some(cookie => cookie.startsWith('authToken='));
+        const hasUserInfo = cookieArray.some(cookie => cookie.startsWith('userInfo='));
+
+        res.json({ 
+            authenticated: hasAuthToken && hasUserInfo 
+        });
+
+    } catch (error) {
+        console.error('Cookie check error:', error);
+        res.status(500).json({ 
+            authenticated: false,
+            error: 'Error checking authentication status'
+        });
+    }
+};
+
 
 export const handleCallback = async (req: Request, res: Response) => {
     const { code } = req.query;
@@ -86,7 +113,7 @@ export const handleCallback = async (req: Request, res: Response) => {
 
 
         // Redirect or return success message
-        res.redirect('http://localhost:3000/post');
+        res.redirect('http://localhost:3000');
     } catch (error: any) {
         console.error('Error during authentication:', error.message);
         res.status(500).json({ error: 'Authentication failed', details: error.message });
