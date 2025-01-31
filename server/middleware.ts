@@ -57,8 +57,9 @@ function parseCookies(cookieString: string): {
 export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const cookie = req.headers.cookie;
 
-    if (!cookie){
+    if (!cookie || cookie.length === 0){
         res.status(401).json({error: "missing cookie"});
+        return;
     }
 
     const { authToken, userInfo } = parseCookies(cookie); 
