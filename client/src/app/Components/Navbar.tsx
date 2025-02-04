@@ -31,7 +31,7 @@ export default function Navbar() {
     const checkToken = async () => {
         try {
 
-        const res = await fetch("http://127.0.0.1:5000/api/users/auth/checkCookie", {
+        const res = await fetch("https://vandy-courses-backend.onrender.com/api/users/auth/checkCookie", {
             method: "GET",
             headers: {
             "Content-Type": "application/json",

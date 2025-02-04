@@ -26,7 +26,7 @@ export default function PostForm(){
     const router = useRouter();
 
     const getCourses = async () => {
-        const res = await fetch("http://localhost:5000/api/grades/course", {
+        const res = await fetch("https://vandy-courses-backend.onrender.com/api/grades/course", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -43,7 +43,7 @@ export default function PostForm(){
     }
 
     const getProfs = async (courseId: string) => {
-        const res = await fetch(`http://localhost:5000/api/grades/profs/${courseId}`, {
+        const res = await fetch(`https://vandy-courses-backend.onrender.com/api/grades/profs/${courseId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -116,7 +116,7 @@ export default function PostForm(){
     const onSubmit = async () => {
         try {
 
-            const res = await fetch('http://localhost:5000/api/grades', {
+            const res = await fetch('https://vandy-courses-backend.onrender.com/api/grades', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

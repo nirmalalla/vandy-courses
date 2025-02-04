@@ -26,7 +26,7 @@ export default function LoginPage(){
     const handleLogin = async () => {
         try {
             // Directly redirect to the backend route
-            window.location.href = 'http://localhost:5000/api/users/auth/google';
+            window.location.href = 'https://vandy-courses-backend.onrender.com/api/users/auth/google';
         } catch (error) {
             console.error('Error during authentication:', error);
         }
@@ -35,7 +35,7 @@ export default function LoginPage(){
     const checkToken = async () => {
         try {
 
-        const res = await fetch("http://127.0.0.1:5000/api/users/auth/checkCookie", {
+        const res = await fetch("https://vandy-courses-backend.onrender.com/api/users/auth/checkCookie", {
             method: "GET",
             headers: {
             "Content-Type": "application/json",

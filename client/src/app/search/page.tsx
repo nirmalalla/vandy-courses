@@ -42,7 +42,7 @@ export default function CourseDisplay(){
             setSearched("");
         }
 
-        const res = await fetch(`http://localhost:5000/api/grades/course/${query}`);
+        const res = await fetch(`https://vandy-courses-backend.onrender.com/api/grades/course/${query}`);
         const data: Grade[] = await res.json();
         setRawData(data);
 

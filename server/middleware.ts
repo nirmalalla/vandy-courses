@@ -59,8 +59,9 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
         return;
     }
 
-    const { authToken, userInfo } = parseCookies(cookie); 
 
+    const { authToken, userInfo } = parseCookies(cookie); 
+    console.log(authToken);
     if (!authToken){
         res.status(401).json({error: "missing token"});
     }
