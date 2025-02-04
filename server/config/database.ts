@@ -1,8 +1,8 @@
-const { Sequelize } = require("sequelize");
+import { Sequelize } from "sequelize";
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    port: parseInt(process.env.DB_PORT),
     logging: console.log,
     dialect: "mysql",
     dialectOptions: {
@@ -18,6 +18,11 @@ async function testConnection() {
         await sequelize.authenticate();
         console.log("Connection established");
     } catch (error) {
+        console.log(process.env.DB_NAME)
+        console.log(process.env.DB_USERNAME)
+        console.log(process.env.DB_PASSWORD)
+        console.log(process.env.DB_HOST)
+        console.log(process.env.DB_PORT)
         console.error("unable to connect", error);
     }
 }
