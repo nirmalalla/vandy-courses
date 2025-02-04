@@ -1,8 +1,5 @@
 import { Model, DataTypes } from "sequelize"
-import { Sequelize } from "sequelize"
 import sequelize from "../config/database"
-import { allowedNodeEnvironmentFlags } from "process";
-import { AllowNull } from "sequelize-typescript";
 
 interface UserAttributes {
     id?: number;

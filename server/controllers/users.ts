@@ -1,12 +1,8 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import * as dotenv from "dotenv";
-import * as path from "path";
 import querystring from "querystring";
 import fetch from 'node-fetch';
 import jwkToPem from 'jwk-to-pem';
-
-dotenv.config({path: path.resolve(process.cwd(), ".env")});
 
 interface GoogleAuthResponse {
     id_token?: string;

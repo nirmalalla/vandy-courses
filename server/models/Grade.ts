@@ -1,5 +1,4 @@
 import { Model, DataTypes } from "sequelize"
-import { Sequelize } from "sequelize"
 import sequelize from "../config/database"
 
 interface GradeAttributes {
