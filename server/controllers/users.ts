@@ -103,7 +103,7 @@ export const handleCallback = async (req: Request, res: Response) => {
         // Decode and verify the ID token
         const userPayload = await decodeAndVerifyToken(id_token);
         // Save tokens securely, e.g., using an HTTP-only cookie
-        res.cookie('authToken', access_token, { httpOnly: true, secure: true, sameSite: "None" });
+        res.cookie('authToken', access_token, { httpOnly: true, secure: true, sameSite: "None", domain: "http://localhost:3000", path: "/" });
         
         res.cookie('userInfo', JSON.stringify({ email: userPayload.email, name: userPayload.name }), {
             httpOnly: true,

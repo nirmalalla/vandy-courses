@@ -116,7 +116,7 @@ export default function PostForm(){
     const onSubmit = async () => {
         try {
 
-            const res = await fetch('http://localhost:5000/api/grades', {
+            const res = await fetch('https://vandy-courses-backend.onrender.com/api/grades', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
