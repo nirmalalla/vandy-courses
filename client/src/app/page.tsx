@@ -6,8 +6,7 @@ import { Content } from "antd/es/layout/layout";
 import { Footer } from "antd/es/layout/layout";
 import Navbar from "./Components/Navbar";
 import Link from "next/link";
-import { TextLoop } from "react-text-loop-next";
-
+import TextLoop from "./Components/TextLoop";
 
 export default function Home() {
   
@@ -17,11 +16,7 @@ export default function Home() {
         <Navbar />
         <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "77vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
           <Flex gap="middle" vertical>
-            <TextLoop interval={1500}>
-              <h1>Real Courses</h1>
-              <h1>Real Grades</h1>
-              <h1>Real Professors</h1>
-            </TextLoop>
+            <TextLoop texts={["Real Courses", "Real Grades", "Real Professors"]} interval={1500} />
             <Flex>
               <Searchbar />
             </Flex>

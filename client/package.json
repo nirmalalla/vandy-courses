@@ -12,11 +12,11 @@
     "@ant-design/icons": "^5.6.0",
     "@ant-design/nextjs-registry": "^1.0.2",
     "antd": "^5.22.5",
+    "framer-motion": "^12.1.0",
     "next": "15.1.0",
     "react": "^19.0.0",
     "react-cookie": "^7.2.2",
     "react-dom": "^19.0.0",
-    "react-text-loop-next": "^0.0.3",
     "recharts": "^2.15.0"
   },
   "devDependencies": {
