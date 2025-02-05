@@ -113,7 +113,7 @@ export const handleCallback = async (req: Request, res: Response) => {
 
 
         // Redirect or return success message
-        res.redirect('http://localhost:3000');
+        res.redirect('https://vandy-courses-three.vercel.app');
     } catch (error: any) {
         console.error('Error during authentication:', error.message);
         res.status(500).json({ error: 'Authentication failed', details: error.message });
