@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 import querystring from "querystring";
 import fetch from 'node-fetch';
 import jwkToPem from 'jwk-to-pem';
+import * as dotenv from "dotenv";
+import * as path from "path"
+dotenv.config({path: path.resolve(process.cwd(), ".env")});
 
 interface GoogleAuthResponse {
     id_token?: string;
@@ -100,7 +103,7 @@ export const handleCallback = async (req: Request, res: Response) => {
         // Decode and verify the ID token
         const userPayload = await decodeAndVerifyToken(id_token);
         // Save tokens securely, e.g., using an HTTP-only cookie
-        res.cookie('authToken', access_token, { httpOnly: true, secure: true });
+        res.cookie('authToken', access_token, { httpOnly: true, secure: true, sameSite: "None" });
         
         res.cookie('userInfo', JSON.stringify({ email: userPayload.email, name: userPayload.name }), {
             httpOnly: true,

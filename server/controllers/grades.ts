@@ -2,7 +2,9 @@ import { Request, Response } from "express";
 import Grade from "../models/Grade";
 import { Sequelize } from "sequelize";
 import crypto from "crypto";
-
+import * as dotenv from "dotenv";
+import * as path from "path"
+dotenv.config({path: path.resolve(process.cwd(), ".env")});
 
 const checkTermVal = (data: string) => {
     const pattern = /^\d{2}[SF]$/;

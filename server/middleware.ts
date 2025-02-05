@@ -2,6 +2,10 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { IncomingHttpHeaders } from "http";
 
+import * as dotenv from "dotenv";
+import * as path from "path"
+dotenv.config({path: path.resolve(process.cwd(), ".env")});
+
 interface AuthenticatedHeaders extends IncomingHttpHeaders{
     authorization?: string
 }
