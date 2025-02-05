@@ -32,7 +32,7 @@ export default function SearchBar(){
         }));
         
         setAllOptions(courses);
-        setFilteredOptions(courses);
+        setFilteredOptions(courses.slice(0, 7));
     }
 
     const getPanelValue = (searchText: string) => {
@@ -40,7 +40,7 @@ export default function SearchBar(){
 
         return allOptions.filter((option: Option) => 
             option?.value?.toLowerCase().includes(searchText.toLowerCase())
-        );
+        ).slice(0, 7);
     }
 
     const onChange = (data: string) => {

@@ -39,7 +39,7 @@ export default function PostForm(){
         }));
         
         setAllOptions(courses);
-        setFilteredOptions(courses);
+        setFilteredOptions(courses.slice(0, 7));
     }
 
     const getProfs = async (courseId: string) => {
@@ -58,7 +58,7 @@ export default function PostForm(){
         }
 
         setAvailProfs(profs);
-        setFilteredProfs(profs);
+        setFilteredProfs(profs.slice(0, 7));
     }
 
     const getPanelValue = (searchText: string) => {
@@ -66,7 +66,7 @@ export default function PostForm(){
 
         return allOptions.filter((option: Option) => 
             option?.value?.toLowerCase().includes(searchText.toLowerCase())
-        );
+        ).slice(0, 7);
     }
     
     const getProfPanelValue = (searchText: string) => {
@@ -74,7 +74,7 @@ export default function PostForm(){
 
         return availProfs.filter((option: Option) => 
             option?.value?.toLowerCase().includes(searchText.toLowerCase())
-        );
+        ).slice(0, 7);
     }
 
     const onChange = (data: string) => {

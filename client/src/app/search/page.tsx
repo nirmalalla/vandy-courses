@@ -33,6 +33,31 @@ export default function CourseDisplay(){
     const [terms, setTerms] = useState<string[]>([]);
     const [searched, setSearched] = useState("");
     
+    type Season = 'F' | 'S' ;
+
+    const seasonOrder: Record<Season, number> = {
+        'S': 1, // Spring
+        'F': 3  // Fall
+    };
+
+    const sortTerms = (terms: string[]): string[] => {
+        return terms.sort((a, b) => {
+            // Extract year and season from each term
+            const yearA = parseInt(a.substring(0, 2));
+            const yearB = parseInt(b.substring(0, 2));
+            const seasonA = a.charAt(2) as Season;
+            const seasonB = b.charAt(2) as Season;
+
+            // Compare years first
+            if (yearA !== yearB) {
+                return yearB - yearA; // Descending order (most recent first)
+            }
+
+            // If years are equal, compare seasons
+            return seasonOrder[seasonB] - seasonOrder[seasonA];
+        });
+    };
+
     const getGrades = async () => {
         const params = new URLSearchParams(window.location.search);
         const query = params.get('query');
@@ -60,7 +85,7 @@ export default function CourseDisplay(){
 
 
         setProfs(tmpProfs);
-        setTerms(tmpTerms);
+        setTerms(sortTerms(tmpTerms));
         setGradeData(getFrequencies(data));
     }
 
