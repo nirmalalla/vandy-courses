@@ -105,6 +105,7 @@ export const handleCallback = async (req: Request, res: Response) => {
         res.cookie('userInfo', JSON.stringify({ email: userPayload.email, name: userPayload.name }), {
             httpOnly: true,
             secure: true,
+            sameSite: "None"
         });
 
 
