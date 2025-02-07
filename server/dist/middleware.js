@@ -42,11 +42,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authenticate = void 0;
+exports.authenticate = exports.GOOGLE_OAUTH_URL = void 0;
+exports.parseCookies = parseCookies;
 const dotenv = __importStar(require("dotenv"));
 const path = __importStar(require("path"));
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
-const GOOGLE_OAUTH_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=';
+exports.GOOGLE_OAUTH_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=';
 function parseCookies(cookieString) {
     // Create an object to store the parsed values
     const cookies = {};
@@ -76,8 +77,6 @@ function parseCookies(cookieString) {
 }
 const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const cookie = req.headers.cookie;
-    console.log(cookie);
-    console.log(req.headers);
     if (!cookie || cookie.length === 0) {
         res.status(401).json({ error: "missing cookie" });
         return;
@@ -88,7 +87,7 @@ const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
     try {
         // Step 1: Validate the token with Google
-        const response = yield fetch(`${GOOGLE_OAUTH_URL}${authToken}`);
+        const response = yield fetch(`${exports.GOOGLE_OAUTH_URL}${authToken}`);
         const data = yield response.json();
         if (response.ok) {
             console.log('Token validated successfully:', data);

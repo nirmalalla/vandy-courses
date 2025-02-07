@@ -12,17 +12,17 @@ interface AuthenticatedHeaders extends IncomingHttpHeaders{
 
 interface AuthenticatedRequest extends Request {
     user?: JwtPayload;
-    headers?: AuthenticatedHeaders;
+    headers: AuthenticatedHeaders;
 }
 
 interface UserInfo {
   email: string;
 }
 
-const GOOGLE_OAUTH_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=';
+export const GOOGLE_OAUTH_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=';
 
 
-function parseCookies(cookieString: string): {
+export function parseCookies(cookieString: string): {
   authToken: string;
   userInfo: UserInfo | null;
 } {
@@ -57,8 +57,6 @@ function parseCookies(cookieString: string): {
 
 export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const cookie = req.headers.cookie;
-    console.log(cookie);
-    console.log(req.headers);
     
     if (!cookie || cookie.length === 0){
         res.status(401).json({error: "missing cookie"});

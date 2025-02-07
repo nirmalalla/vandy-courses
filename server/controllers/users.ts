@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { parseCookies } from "../middleware";
 import querystring from "querystring";
 import fetch from 'node-fetch';
 import jwkToPem from 'jwk-to-pem';
 import * as dotenv from "dotenv";
 import * as path from "path"
+import { GOOGLE_OAUTH_URL } from "../middleware";
+
 dotenv.config({path: path.resolve(process.cwd(), ".env")});
 
 interface GoogleAuthResponse {
@@ -39,30 +42,36 @@ export const googleAuth = async (req: Request, res: Response) => {
     res.redirect(googleAuthUrl);
 };
 
-export const checkCookie = (req: Request, res: Response): void => {
+export const checkCookie = async (req: Request, res: Response): Promise<void> => {
+    
+    const cookie = req.headers.cookie;
+    
+    if (!cookie || cookie.length === 0){
+        res.status(401);
+        return;
+    }
+
+
+    const { authToken, userInfo } = parseCookies(cookie); 
+
+    if (!authToken){
+        res.status(401);
+    }
+
     try {
-        const cookies = req.headers.cookie;
-        
-        if (!cookies) {
-            res.json({ authenticated: false });
-            return;
+        // Step 1: Validate the token with Google
+        const response = await fetch(`${GOOGLE_OAUTH_URL}${authToken}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log('Token validated successfully:', data);
+            res.json({ authenticated: true});
+        } else {
+            res.status(401);
         }
-
-        // Convert cookies string to array and check for both required values
-        const cookieArray = cookies.split(';').map(cookie => cookie.trim());
-        const hasAuthToken = cookieArray.some(cookie => cookie.startsWith('authToken='));
-        const hasUserInfo = cookieArray.some(cookie => cookie.startsWith('userInfo='));
-
-        res.json({ 
-            authenticated: hasAuthToken && hasUserInfo 
-        });
-
     } catch (error) {
-        console.error('Cookie check error:', error);
-        res.status(500).json({ 
-            authenticated: false,
-            error: 'Error checking authentication status'
-        });
+        console.error('Token Verification Error: ', error.message);
+        res.status(401);
     }
 };
 
@@ -101,14 +110,14 @@ export const handleCallback = async (req: Request, res: Response) => {
         const { id_token, access_token } = data;
 
         // Decode and verify the ID token
-        const userPayload = await decodeAndVerifyToken(id_token);
+        const userPayload = await decodeAndVerifyToken(id_token) as JwtPayload;
         // Save tokens securely, e.g., using an HTTP-only cookie
-        res.cookie('authToken', access_token, { httpOnly: true, secure: true, sameSite: "None", path: "/" });
+        res.cookie('authToken', access_token, { httpOnly: true, secure: true, sameSite: "none", path: "/" });
         
         res.cookie('userInfo', JSON.stringify({ email: userPayload.email, name: userPayload.name }), {
             httpOnly: true,
             secure: true,
-            sameSite: "None"
+            sameSite: "none"
         });
 
 

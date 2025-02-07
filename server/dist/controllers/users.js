@@ -47,11 +47,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleCallback = exports.checkCookie = exports.googleAuth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const middleware_1 = require("../middleware");
 const querystring_1 = __importDefault(require("querystring"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const jwk_to_pem_1 = __importDefault(require("jwk-to-pem"));
 const dotenv = __importStar(require("dotenv"));
 const path = __importStar(require("path"));
+const middleware_2 = require("../middleware");
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 const googleAuth = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const params = querystring_1.default.stringify({
@@ -66,29 +68,33 @@ const googleAuth = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     res.redirect(googleAuthUrl);
 });
 exports.googleAuth = googleAuth;
-const checkCookie = (req, res) => {
+const checkCookie = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const cookie = req.headers.cookie;
+    if (!cookie || cookie.length === 0) {
+        res.status(401);
+        return;
+    }
+    const { authToken, userInfo } = (0, middleware_1.parseCookies)(cookie);
+    if (!authToken) {
+        res.status(401);
+    }
     try {
-        const cookies = req.headers.cookie;
-        if (!cookies) {
-            res.json({ authenticated: false });
-            return;
+        // Step 1: Validate the token with Google
+        const response = yield (0, node_fetch_1.default)(`${middleware_2.GOOGLE_OAUTH_URL}${authToken}`);
+        const data = yield response.json();
+        if (response.ok) {
+            console.log('Token validated successfully:', data);
+            res.json({ authenticated: true });
         }
-        // Convert cookies string to array and check for both required values
-        const cookieArray = cookies.split(';').map(cookie => cookie.trim());
-        const hasAuthToken = cookieArray.some(cookie => cookie.startsWith('authToken='));
-        const hasUserInfo = cookieArray.some(cookie => cookie.startsWith('userInfo='));
-        res.json({
-            authenticated: hasAuthToken && hasUserInfo
-        });
+        else {
+            res.status(401);
+        }
     }
     catch (error) {
-        console.error('Cookie check error:', error);
-        res.status(500).json({
-            authenticated: false,
-            error: 'Error checking authentication status'
-        });
+        console.error('Token Verification Error: ', error.message);
+        res.status(401);
     }
-};
+});
 exports.checkCookie = checkCookie;
 const handleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { code } = req.query;
@@ -120,14 +126,14 @@ const handleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function*
         // Decode and verify the ID token
         const userPayload = yield decodeAndVerifyToken(id_token);
         // Save tokens securely, e.g., using an HTTP-only cookie
-        res.cookie('authToken', access_token, { httpOnly: true, secure: true });
+        res.cookie('authToken', access_token, { httpOnly: true, secure: true, sameSite: "none", path: "/" });
         res.cookie('userInfo', JSON.stringify({ email: userPayload.email, name: userPayload.name }), {
             httpOnly: true,
             secure: true,
-            sameSite: "None"
+            sameSite: "none"
         });
         // Redirect or return success message
-        res.redirect('http://localhost:3000');
+        res.redirect('https://vandy-courses-three.vercel.app');
     }
     catch (error) {
         console.error('Error during authentication:', error.message);

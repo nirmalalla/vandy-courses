@@ -71,7 +71,7 @@ export default function Navbar() {
                       </Button>
                     </Space>
                   </Dropdown> :
-                  <Button onClick={onLogin} type="text">Login</Button>
+                  <Button onClick={onLogin} variant="outlined" style={{ marginTop: "0.5vh"}}>Login</Button>
                 }
               </Col>
             </Row>
