@@ -61,11 +61,9 @@ export const checkCookie = async (req: Request, res: Response): Promise<void> =>
     try {
         // Step 1: Validate the token with Google
         const response = await fetch(`${GOOGLE_OAUTH_URL}${authToken}`);
-        const data = await response.json();
 
         if (response.ok) {
-            console.log('Token validated successfully:', data);
-            res.json({ authenticated: true});
+            res.status(200);
         } else {
             res.status(401);
         }
