@@ -57,9 +57,9 @@ export default function Navbar() {
     return (
           <Header style={{ backgroundColor: 'white' }}>
             <Row justify="space-between" align="middle">
-              <Space>
+              <Space style={{maxWidth: "10vw"}}>
                 <Link href="/" style={{ color: "black" }}><h1>VandyCourses</h1></Link>
-                <Button onClick={onClick} type="text" style={{marginTop: "3vh"}}>Post</Button>
+                <Button onClick={onClick} type="text" style={{ marginTop: "3vh", maxWidth: "2vw"}}>Post</Button>
               </Space>
               
               <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>

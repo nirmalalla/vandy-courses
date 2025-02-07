@@ -166,9 +166,11 @@ export default function CourseDisplay(){
         <>
             <Layout>
                 <Navbar />
-                <Content style={{ padding: '0 48px', alignItems: "center", minHeight: "77vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
+                <Content style={{ padding: '0 5.5vh', alignItems: "center", minHeight: "77vh", backgroundColor: "white", display: "flex", justifyContent: "center"}}>
                     {!cProf && !cTerm ? 
-                        <CustomBarChart data={gradeData} />: <CustomBarChart data={filtered} /> 
+                        <CustomBarChart data={gradeData} />
+                        : 
+                        <CustomBarChart data={filtered} /> 
                     }
                     <Flex vertical>
                         <h1 style={{marginBottom: "3vh", display:"flex", justifyContent: "center"}}>{searched}</h1>
