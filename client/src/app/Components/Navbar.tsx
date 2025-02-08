@@ -57,12 +57,12 @@ export default function Navbar() {
     return (
           <Header style={{ backgroundColor: 'white' }}>
             <Row justify="space-between" align="middle">
-              <Space style={{maxWidth: "10vw"}}>
+              <Space style={{maxWidth: "10vw", marginRight: "1vw"}}>
                 <Link href="/" style={{ color: "black" }}><h1>VandyCourses</h1></Link>
                 <Button onClick={onClick} type="text" style={{ marginTop: "3vh", maxWidth: "2vw"}}>Post</Button>
               </Space>
               
-              <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Col>
                 {signedIn ?
                   <Dropdown menu={{items}} trigger={["click"]}>
                     <Space>

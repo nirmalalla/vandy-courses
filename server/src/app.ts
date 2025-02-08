@@ -10,7 +10,7 @@ const PORT = 5000;
 app.use(express.json());
 
 app.use(cors({
-    origin: "https://vandy-courses-three.vercel.app",
+    origin: "https://vandycourses.com",
     credentials: true
 }));
 
