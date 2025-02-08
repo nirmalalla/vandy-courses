@@ -7,6 +7,7 @@ import jwkToPem from 'jwk-to-pem';
 import * as dotenv from "dotenv";
 import * as path from "path"
 import { GOOGLE_OAUTH_URL } from "../middleware";
+import NodeCache from "node-cache";
 
 dotenv.config({path: path.resolve(process.cwd(), ".env")});
 
@@ -42,34 +43,50 @@ export const googleAuth = async (req: Request, res: Response) => {
     res.redirect(googleAuthUrl);
 };
 
+// Cache tokens with a 1-hour TTL (or match your token expiry time)
+const tokenCache = new NodeCache({ stdTTL: 3600 });
+
 export const checkCookie = async (req: Request, res: Response): Promise<void> => {
-    
-    const cookie = req.headers.cookie;
-    
-    if (!cookie || cookie.length === 0){
-        res.status(401);
-        return;
-    }
-
-
-    const { authToken, userInfo } = parseCookies(cookie); 
-
-    if (!authToken){
-        res.status(401);
-    }
-
     try {
-        // Step 1: Validate the token with Google
-        const response = await fetch(`${GOOGLE_OAUTH_URL}${authToken}`);
+        const cookie = req.headers.cookie;
+        
+        if (!cookie || cookie.length === 0) {
+            res.status(401).json({ error: 'No cookie present' });
+            return;
+        }
+
+        const { authToken, userInfo } = parseCookies(cookie);
+
+        if (!authToken) {
+            res.status(401).json({ error: 'No auth token present' });
+            return;
+        }
+
+        // Check cache first
+        const cachedValidation = tokenCache.get(authToken);
+        if (cachedValidation) {
+            res.status(200).json({ valid: true });
+            return;
+        }
+
+        // If not in cache, validate with Google
+        const response = await fetch(`${GOOGLE_OAUTH_URL}${authToken}`, {
+            headers: {
+                'Accept': 'application/json'
+            },
+        });
 
         if (response.ok) {
-            res.status(200);
+            // Cache the valid token
+            tokenCache.set(authToken, true);
+            res.status(200).json({ valid: true });
         } else {
-            res.status(401);
+            res.status(401).json({ error: 'Invalid token' });
         }
+        
     } catch (error) {
-        console.error('Token Verification Error: ', error.message);
-        res.status(401);
+        console.error('Token Verification Error: ', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
