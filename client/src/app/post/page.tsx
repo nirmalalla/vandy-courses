@@ -8,10 +8,15 @@ import { useRouter } from "next/navigation";
 import { CourseName, Option } from "../Components/Searchbar";
 import Navbar from "../Components/Navbar";
 import Link from "next/link";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd";
 
 interface Professor{
     value?: string;
 }
+
+
+const privacyInfo = <span>No names are displayed alongside grades, and all emails are hashed when new grades are created. The hashing process is irreversible, meaning only the user will know what grades they have posted</span> 
 
 export default function PostForm(){
     const [prof, setProf] = useState("");
@@ -39,7 +44,7 @@ export default function PostForm(){
         }));
         
         setAllOptions(courses);
-        setFilteredOptions(courses.slice(0, 7));
+        setFilteredOptions(courses);
     }
 
     const getProfs = async (courseId: string) => {
@@ -58,7 +63,7 @@ export default function PostForm(){
         }
 
         setAvailProfs(profs);
-        setFilteredProfs(profs.slice(0, 7));
+        setFilteredProfs(profs);
     }
 
     const getPanelValue = (searchText: string) => {
@@ -66,7 +71,7 @@ export default function PostForm(){
 
         return allOptions.filter((option: Option) => 
             option?.value?.toLowerCase().includes(searchText.toLowerCase())
-        ).slice(0, 7);
+        );
     }
     
     const getProfPanelValue = (searchText: string) => {
@@ -74,7 +79,7 @@ export default function PostForm(){
 
         return availProfs.filter((option: Option) => 
             option?.value?.toLowerCase().includes(searchText.toLowerCase())
-        ).slice(0, 7);
+        );
     }
 
     const onChange = (data: string) => {
@@ -245,13 +250,20 @@ export default function PostForm(){
                                     ]}
                                 />
                             </Form.Item>
+                            <Flex style={{justifyContent: "center", marginBottom: "2vh"}}>
+                                    <Tooltip placement="bottom" title={privacyInfo}>
+                                        <Button>
+                                            How Anonymous is it
+                                            <QuestionCircleOutlined />
+                                        </Button>
+                                    </Tooltip>
+                            </Flex>    
 
                             <Form.Item style={{display: "flex", justifyContent: "center"}}>
                                 <Button type="primary" onClick={onSubmit}>Submit</Button>
                             </Form.Item>
 
                         </Form>
-
                     </Space>
                 </Content>
                 <Footer style={{ textAlign: "center", backgroundColor: "black", minHeight: "1vh"}}>
